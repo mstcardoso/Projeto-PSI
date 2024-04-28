@@ -5,8 +5,8 @@ import { WebsiteDetailComponent } from './website-detail/website-detail.componen
 
 
 const routes: Routes = [
-  { path: '', redirectTo: '/dashboard', pathMatch: 'full' },
-  { path: 'dashboard', component: DashboardComponent },
+  { path: '', redirectTo: '/websites', pathMatch: 'full' },
+  { path: 'websites', component: DashboardComponent },
   { path: 'website/:_id', component: WebsiteDetailComponent },
 ];
 @NgModule({
