@@ -93,7 +93,8 @@ export class DashboardComponent {
           this.websiteService.addWebsite(newWebsite )
             .subscribe((response: string) => {
               this.resultMessage = response;
-          window.location.reload();
+          this.getWebsites();
+          this.filterWebsites();
           });
         });
       } else {
