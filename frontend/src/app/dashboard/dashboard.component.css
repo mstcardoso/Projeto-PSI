@@ -1,0 +1,161 @@
+.new-website {
+    display: flex;
+    align-items: center; 
+}
+  
+input {
+    margin-right: 10px; 
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    height: 30px;
+    width: 20%;
+    font-size: 16px;
+}
+.result-container {
+    height: 30px;
+    margin-bottom: 10px;
+}
+
+h1 {
+    font-size: 24px;
+    font-weight: bold;
+    color: #333;
+}
+
+div {
+    margin-top: 20px;
+}
+
+label {
+    display: block;
+    margin-bottom: 10px;
+}
+
+
+.add-button {
+  flex: none;
+  padding: 10px 20px;
+  background-color: #007AFF; 
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.add-button:hover {
+  background-color: #0056B3;
+}
+.filter {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+#sortingButtons,
+#myBtnContainer {
+  display: flex;
+  align-items: center;
+}
+
+#sortingButtons button,
+#myBtnContainer select {
+  margin-right: 10px;
+  padding: 10px 20px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  height: 55px;
+  background-color: #fff;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+#sortingButtons button {
+  background-color: #007AFF;
+  color: white;
+  border: none;
+  transition: background-color 0.3s ease;
+}
+
+#sortingButtons button:hover {
+  background-color: #0056B3;
+}
+.websites {
+  margin-top: 20px;
+}
+
+.website-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.website-table th, .website-table td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: left;
+}
+
+.website-table th {
+  background-color: #f2f2f2;
+}
+
+.website-table tbody tr:hover {
+  background-color: #f9f9f9;
+}
+
+.website-table a {
+  color: #007AFF;
+  text-decoration: none;
+}
+
+.website-table a:hover {
+  text-decoration: underline;
+}
+
+.pagination {
+  display: flex;
+  align-items: center;
+  margin-top: 20px;
+}
+
+.prev-next {
+  padding: 10px 20px;
+  background-color: #007AFF;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.prev-next:hover {
+  background-color: #0056B3;
+}
+
+.pagination span {
+  margin: 0 10px;
+  font-size: 16px;
+}
+
+.prev-button,
+.next-button {
+  padding: 10px 20px;
+  background-color: #007AFF;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.prev-button:hover:not([disabled]),
+.next-button:hover:not([disabled]) {
+  background-color: #0056B3;
+}
+
+.prev-button:disabled,
+.next-button:disabled {
+  background-color: #cccccc; 
+  cursor: not-allowed; 
+}

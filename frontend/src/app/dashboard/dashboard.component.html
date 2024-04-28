@@ -1,0 +1,65 @@
+<div class="new-website">
+    <input id="new-website" #websiteUrl placeholder="Adicionar um novo site" />
+    
+    <button type="button" class="add-button" (click)="add(websiteUrl.value); websiteUrl.value=''">
+      Adicionar site
+    </button>
+  </div>
+  
+  <div class="result-container">
+    <div *ngIf="resultMessage" class="result-message">{{ resultMessage }}</div>
+  </div>
+  
+  <hr>
+  
+  <h2>Meus sites</h2>
+  
+  <div class="filter">
+    <div id="myBtnContainer">
+      <select (change)="filterSelection($event)">
+        <option value="Todos" [selected]="selectedStatus === 'Todos'">Todos</option>
+        <option value="Por avaliar" [selected]="selectedStatus === 'Por avaliar'">Por Avaliar</option>
+        <option value="Em avaliação" [selected]="selectedStatus === 'Em avaliação'">Em Avaliação</option>
+        <option value="Avaliado" [selected]="selectedStatus === 'Avaliado'">Avaliado</option>
+        <option value="Erro na avaliação" [selected]="selectedStatus === 'Erro na avaliação'">Erro na avaliação</option>
+      </select>
+    </div>
+  </div>
+  
+  <div class="websites">
+    <table class="website-table">
+      <thead>
+        <tr>
+          <th>URL</th>
+          <th (click)="sortByRegistrationDate()">
+            Data de Registro <i class="fas fa-sort" [ngClass]="{'fa-sort-up': registrationDateAsc, 'fa-sort-down': !registrationDateAsc}"></i>
+          </th>
+          <th (click)="sortByLastEvaluationDate()">
+            Última Avaliação <i class="fas fa-sort" [ngClass]="{'fa-sort-up': lastEvaluationDateAsc, 'fa-sort-down': !lastEvaluationDateAsc}"></i>
+          </th>
+          <th>Estado</th>
+          <th>Detalhes</th>
+        </tr>
+        
+      </thead>
+      <tbody>
+        <ng-container *ngFor="let website of filteredWebsites.slice(calculateIndex().startIndex, calculateIndex().endIndex)">
+          <tr>
+            <td>{{ website.url }}</td>
+            <td>{{ website.registrationDate | date:'dd/MM/yyyy HH:mm:ss' }}</td>
+            <td>
+              <ng-container *ngIf="website.lastEvaluationDate; else none">{{ website.lastEvaluationDate | date:'dd/MM/yyyy HH:mm:ss' }}</ng-container>
+              <ng-template #none>Sem Avaliações</ng-template>
+            </td>
+            <td>{{ website.monitoringStatus }}</td>
+            <td><a [routerLink]="'/website/' + website.id">Detalhes</a></td>
+          </tr>
+        </ng-container>
+      </tbody>    
+    </table>
+    <div class="pagination">
+      <button class="prev-next prev-button" (click)="prevPage()" [disabled]="currentPage === 1">Anterior</button>
+      <span>Página: {{currentPage}} de {{totalPages}}</span>
+      <button class="prev-next prev-button" (click)="nextPage()" [disabled]="currentPage === totalPages">Próximo</button>
+    </div>
+  </div>
