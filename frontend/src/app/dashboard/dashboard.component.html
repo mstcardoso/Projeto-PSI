@@ -15,6 +15,11 @@
   <h2>Meus sites</h2>
   
   <div class="filter">
+    <div id="sortingButtons">
+      <button class="btn" (click)="sortByRegistrationDate()">Sort by Registration Date</button>
+      <button class="btn" (click)="sortByLastEvaluationDate()">Sort by Last Evaluation Date</button>
+    </div>
+  
     <div id="myBtnContainer">
       <select (change)="filterSelection($event)">
         <option value="Todos" [selected]="selectedStatus === 'Todos'">Todos</option>
