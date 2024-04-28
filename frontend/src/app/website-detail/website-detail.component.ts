@@ -116,6 +116,7 @@ export class WebsiteDetailComponent implements OnInit {
                         
                       }
                     });
+                  window.location.reload();
                 }
               });
             } else {
