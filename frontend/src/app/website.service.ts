@@ -26,10 +26,10 @@ export class WebsiteService {
   addWebsite(website: Website): Observable<string> {
     return this.http.post<string>(this.websiteUrl, website)
       .pipe(
-        map(() => 'Website successful added'),
+        map(() => 'Website adicionado com sucesso'),
         catchError(error => {
           console.error(error);
-          return of('Failed to add website');
+          return of('Falha ao adicionar site');
         })
       );
   }
@@ -75,8 +75,8 @@ export class WebsiteService {
   updateWebsite(website: Website): Observable<string> {
     const url = `${this.websiteUrl}/${website.id}`;
     return this.http.put(url, website, this.httpOptions).pipe(
-      map(() => 'Page successfully added'),
-      catchError(() => of('Failed to add page'))
+      map(() => 'Página adicionada com sucesso'),
+      catchError(() => of('Falha ao adicionar página'))
     );
   }
   
