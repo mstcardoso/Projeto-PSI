@@ -9,6 +9,8 @@
 # Node
 /frontend/node_modules
 /backend/monitoring-platform/node_modules
+/frontend/.angular
+/frontend/.vscode
 npm-debug.log
 yarn-error.log
 
