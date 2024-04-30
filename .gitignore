@@ -7,6 +7,10 @@
 /bazel-out
 
 # Node
+*/*/node_modules
+*/node_modules
+*/.vscode
+/frontend/.angular
 npm-debug.log
 yarn-error.log
 
