@@ -1,0 +1,30 @@
+.container {
+    display: flex;
+    background-color: #f0f0f0;
+    border-radius: 10px;
+    height: 85px;
+  }
+  
+  nav {
+    flex: 1;
+    display: flex;
+    align-items: center;
+  }
+  
+  h1 {
+    margin-right: auto;
+    margin-left: 10px;
+  }
+  
+  a {
+    margin-right: 20px;
+    text-decoration: none;
+    color: #333;
+    font-size: 22px;
+  }
+  
+  router-outlet {
+    flex: 3;
+    padding: 0 20px;
+  }
+  

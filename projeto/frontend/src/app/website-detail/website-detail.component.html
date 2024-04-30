@@ -1,0 +1,73 @@
+<div *ngIf="website"> 
+    <div class="details-container">
+      <div class="details">
+        <h2>Detalhes de {{ website.url }}</h2>
+        <div>
+          <span class="bold-text">Id:</span> {{ website.id }}
+        </div>
+        <div>
+          <span class="bold-text">Url:</span> {{ website.url }}
+        </div>
+        <div>
+          <span class="bold-text">Data de Registro:</span> {{ website.registrationDate | date:'dd/MM/yyyy HH:mm:ss' }}
+        </div>
+        <div>
+          <span class="bold-text">Última Avaliação: </span>
+          <ng-container *ngIf="website.lastEvaluationDate; else none">{{ website.lastEvaluationDate | date:'dd/MM/yyyy HH:mm:ss' }}</ng-container>
+          <ng-template #none>Sem Avaliações</ng-template>
+        </div>
+      </div>
+    </div>
+    
+  
+      <hr>
+      <div class="new-page">
+        <input id="new-page" #pageUrl placeholder="Adicionar uma nova página" />
+        
+        <button type="button" class="add-button" (click)="add(pageUrl.value); pageUrl.value=''">
+          Adicionar Página
+        </button>
+      </div>
+      <div class="result-container">
+        <div *ngIf="resultMessage" class="result-message">{{ resultMessage }}</div>
+      </div>
+    
+  
+      <hr>
+      
+      <div *ngIf="website.pages">
+        <div class="website-pages">
+          <span class="bold-text">Páginas: </span>
+        </div>
+      </div>
+  
+      <div class="website-pages">
+        <table class="pages-table">
+          <thead>
+            <tr>
+              <th>URL</th>
+              <th>Última Avaliação</th>
+              <th>Estado</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let page of website.pages.slice(calculateIndex().startIndex, calculateIndex().endIndex)">
+              <td>{{ page.url }}</td>
+              <td>
+                <ng-container *ngIf="page.lastEvaluationDate; else none">{{ page.lastEvaluationDate | date:'dd/MM/yyyy HH:mm:ss' }}</ng-container>
+                <ng-template #none>Sem Avaliações</ng-template>
+              </td>
+              <td>{{ page.monitoringStatus }}</td>
+            </tr>
+          </tbody>
+        </table>      
+      </div>
+      <div class="pagination">
+        <button class="prev-next prev-button" (click)="prevPage()" [disabled]="currentPage === 1">Anterior</button>
+        <span>Página: {{currentPage}} de {{totalPages}}</span>
+        <button class="prev-next prev-button" (click)="nextPage()" [disabled]="currentPage === totalPages">Próximo</button>
+      </div>
+  </div>
+    
+  
+  <button class="back" type="button" (click)="goBack()">Voltar</button>
