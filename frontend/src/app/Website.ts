@@ -7,4 +7,3 @@ export interface Website {
     lastEvaluationDate?: Date;
     pages: WebsitePage[];
 }
-

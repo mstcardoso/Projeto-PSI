@@ -28,7 +28,7 @@ export class DashboardComponent {
   }
 
   getWebsites(): void {
-    this.websiteService.getWebsites().subscribe((websites) =>{ (this.websites = websites); this.filterWebsites();});
+    this.websiteService.getWebsites().subscribe((websites) =>{ (this.websites = websites); this.filterWebsites(); console.log(JSON.stringify(websites)); });
   }
 
   filterSelection(event: Event) {
@@ -143,7 +143,6 @@ export class DashboardComponent {
   private deletePages(website: Website): void {
     let i: number = 0;
     for (i = 0; i < website.pages.length; i++) {
-      console.log("Deleting page with ID:", website.pages[i]._id);
       this.websiteService.deletePage(website.pages[i]._id).subscribe();
     }
   }

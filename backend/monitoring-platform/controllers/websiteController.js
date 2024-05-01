@@ -18,7 +18,7 @@ exports.website_regist = asyncHandler(async (req, res, next) => {
 });
 
 exports.page_regist = asyncHandler(async (req, res, next) => {
-  
+
   try {
       const newPage = await WebsitePage.create({ 
         url: req.body.url,
@@ -33,29 +33,50 @@ exports.page_regist = asyncHandler(async (req, res, next) => {
 });
 
 exports.website_list = asyncHandler(async (req, res, next) => {
-    try {
-      const list_websites = await Website.find({}, "_id url monitoringStatus registrationDate lastEvaluationDate pages");
-      const formattedWebsites = list_websites.map((website) => {
-        return { id: website._id.toString(), url: website.url, monitoringStatus: website.monitoringStatus, registrationDate: website.registrationDate, lastEvaluationDate: website.last, pages: website.pages};
-      });
-      res.json(formattedWebsites);
-    } catch (err) {
-      return next(err);
-    }
-  });
+  try {
+    const list_websites = await Website.find({}, "_id url monitoringStatus registrationDate lastEvaluationDate pages");
+    const formattedWebsites = await Promise.all(list_websites.map(async (website) => {
+      const pages = await getPageList(website.pages);
+      return { 
+        id: website._id.toString(), 
+        url: website.url, 
+        monitoringStatus: website.monitoringStatus, 
+        registrationDate: website.registrationDate, 
+        lastEvaluationDate: website.last, 
+        pages: pages
+      };
+    }));
+    res.json(formattedWebsites);
+  } catch (err) {
+    return next(err);
+  }
+});
 
-  exports.page_list = asyncHandler(async (req, res, next) => {
-    try {
-      const list_pages = await WebsitePage.find({}, "_id url monitoringStatus");
-      const formattedPages = list_pages.map((page) => {
-        return { id: page._id.toString(), url: page.url, monitoringStatus: page.monitoringStatus};
-      });
-      res.json(formattedPages);
-    } catch (err) {
-      console.error(err);
-      return next(err);
-    }
-  });
+const getPageList = async (pageIds) => {
+  try {
+    const list_pages = await WebsitePage.find({ _id: { $in: pageIds } }, "_id url monitoringStatus");
+    const formattedPages = list_pages.map((page) => {
+      return { id: page._id.toString(), url: page.url, monitoringStatus: page.monitoringStatus};
+    });
+    return formattedPages;
+  } catch (err) {
+    console.error(err);
+    throw err;
+  }
+};
+
+exports.page_list = asyncHandler(async (req, res, next) => {
+  try {
+    const list_pages = await WebsitePage.find({}, "_id url monitoringStatus");
+    const formattedPages = list_pages.map((page) => {
+      return { id: page._id.toString(), url: page.url, monitoringStatus: page.monitoringStatus};
+    });
+    res.json(formattedPages);
+  } catch (err) {
+    console.error(err);
+    return next(err);
+  }
+});
 
 
 exports.website_update = asyncHandler(async (req, res, next) => { 

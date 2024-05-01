@@ -91,7 +91,6 @@ export class WebsiteDetailComponent implements OnInit {
               this.websiteService.getPages().subscribe((pagesList) => {
                 var inBD: boolean = false;
                 
-                console.log(pagesList)
                 for(const page of pagesList){
                       if(pageUrl == page.url) {
                         this.resultMessage = "Página já no banco de dados";
@@ -113,9 +112,7 @@ export class WebsiteDetailComponent implements OnInit {
                           .subscribe((response: string) => {
                             this.resultMessage = response;
                           });
-                        
                       }
-                      window.location.reload();
                     });
                 }
               });
@@ -144,7 +141,6 @@ export class WebsiteDetailComponent implements OnInit {
             this.resultMessage = response;
           });
       }
-      window.location.reload();
     });
   }
 }
