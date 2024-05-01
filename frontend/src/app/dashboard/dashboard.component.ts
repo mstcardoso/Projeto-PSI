@@ -123,4 +123,12 @@ export class DashboardComponent {
     const endIndex = Math.min(startIndex + this.itemsPerPage, this.filteredWebsites.length);
     return { startIndex, endIndex };
   }
+
+  delete(website: Website): void {
+    this.websites = this.websites.filter((h) => h !== website);
+    this.websiteService.deleteWebsite(website.id).subscribe( () => {
+      this.getWebsites();
+      this.filterWebsites();
+    });
+  }
 }

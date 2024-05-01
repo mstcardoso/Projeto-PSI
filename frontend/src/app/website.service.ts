@@ -10,10 +10,10 @@ import { WebsitePage } from './WebsitePage';
 })
 export class WebsiteService {
   
-  private websitesUrl = 'http://appserver.alunos.di.fc.ul.pt:3090/api/websites'; 
-  private pagesUrl = 'http://appserver.alunos.di.fc.ul.pt:3090/api/pages'; 
-  private websiteUrl = 'http://appserver.alunos.di.fc.ul.pt:3090/api/website'; 
-  private pageUrl = 'http://appserver.alunos.di.fc.ul.pt:3090/api/page'
+  private websitesUrl = 'http://localhost:3090/api/websites'; 
+  private pagesUrl = 'http://localhost:3090/api/pages'; 
+  private websiteUrl = 'http://localhost:3090/api/website'; 
+  private pageUrl = 'http://localhost:3090/api/page'
   
   httpOptions = {
     headers: new HttpHeaders({ 'Content-Type': 'application/json'})
@@ -64,6 +64,7 @@ export class WebsiteService {
       catchError(this.handleError<Website[]>('getWebsites', []))
     );
   }
+  
   // GET Request Pages
   getPages(): Observable<WebsitePage[]> {
     return this.http.get<WebsitePage[]>(this.pagesUrl).pipe(
@@ -77,6 +78,15 @@ export class WebsiteService {
     return this.http.put(url, website, this.httpOptions).pipe(
       map(() => 'Página adicionada com sucesso'),
       catchError(() => of('Falha ao adicionar página'))
+    );
+  }
+
+  /** DELETE: delete the website from the server */
+  deleteWebsite(id: string | undefined): Observable<Website | string> {
+    const url = `${this.websiteUrl}/${id}`;
+    return this.http.delete<Website>(url, this.httpOptions).pipe(
+      map(() => 'Página adicionada com sucesso'),
+      catchError(this.handleError<Website>('deleteHero'))
     );
   }
   

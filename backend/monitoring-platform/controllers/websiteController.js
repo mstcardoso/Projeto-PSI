@@ -1,6 +1,7 @@
 const Website = require("../models/Website");
 const WebsitePage = require("../models/WebsitePage")
 const asyncHandler = require("express-async-handler");
+const { ObjectId } = require("mongodb");
 
 exports.website_regist = asyncHandler(async (req, res, next) => {
     const { url, monitoringStatus, registrationDate, pages } = req.body;
@@ -104,6 +105,27 @@ exports.website_detail = asyncHandler(async (req, res, next) => {
     res.json(website);
   } catch (error) {
     next(error);
+  }
+});
+
+exports.website_delete_get = asyncHandler(async (req, res, next) => {
+  try {
+    const websiteId = req.params._id;
+    if (!ObjectId.isValid(websiteId)) {
+      const err = new Error("ID do website inválido");
+      err.status = 400; // Bad request
+      return next(err);
+    }
+
+    const deletedWebsite = await Website.findByIdAndDelete(websiteId);
+    if (!deletedWebsite) {
+      const err = new Error("Website não encontrado");
+      error.status = 404;
+      return next(error);
+    }
+    res.json({ message: "Website deleted successfully", deletedWebsite });
+  } catch (err) {
+    return next(err);
   }
 });
 

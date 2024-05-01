@@ -44,6 +44,7 @@
           </th>
           <th>Estado</th>
           <th>Detalhes</th>
+          <th>Apagar</th>
         </tr>
         
       </thead>
@@ -58,6 +59,9 @@
             </td>
             <td>{{ website.monitoringStatus }}</td>
             <td><a [routerLink]="'/website/' + website.id">Detalhes</a></td>
+            <td class="center">
+              <button type="button" class="delete" title="delete website" (click)="delete(website)">X</button>
+            </td>
           </tr>
         </ng-container>
       </tbody>    

@@ -113,6 +113,13 @@ label {
   text-decoration: underline;
 }
 
+.website-table .delete {
+  border: 1px solid #ddd;
+  display: block;
+  margin: 0 auto; /* Auto margin horizontally centers the button */
+  padding: 8px;
+}
+
 .pagination {
   display: flex;
   align-items: center;

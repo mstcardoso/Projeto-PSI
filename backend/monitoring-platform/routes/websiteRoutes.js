@@ -17,4 +17,6 @@ router.get('/pages', websiteController.page_list);
 
 router.post('/init', websiteController.init);
 
+router.delete("/website/:_id", websiteController.website_delete_get);
+
 module.exports = router;
