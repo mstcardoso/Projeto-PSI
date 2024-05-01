@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { Website } from '../Website';
 import { WebsiteService } from '../website.service';
+
 import isUrl from 'is-url';
 
 @Component({
@@ -10,7 +11,7 @@ import isUrl from 'is-url';
 })
 export class DashboardComponent {
 
-  constructor( private websiteService: WebsiteService,) {this.filteredWebsites = this.websites;}
+  constructor( private websiteService: WebsiteService) {this.filteredWebsites = this.websites;}
   resultMessage: string = '';
 
   selectedStatus: string = 'Todos';
@@ -74,7 +75,6 @@ export class DashboardComponent {
       this.resultMessage = "Por favor insira o URL do site"
     } else {
       if(this.isValidWebsite(websiteUrl)) {
-        var websites: Website[] = [];
         this.websiteService.getWebsites().subscribe((websites) => {
           console.log("websites: " + websites)
           for(var web of websites) {
@@ -83,19 +83,14 @@ export class DashboardComponent {
               return; 
             }
           }
-          const newWebsite: Website = {
-            url: websiteUrl,
-            monitoringStatus: 'Por avaliar',
-            registrationDate: new Date(),
-            pages: [],
-          };
       
-          this.websiteService.addWebsite(newWebsite )
-            .subscribe((response: string) => {
-              this.resultMessage = response;
+          this.websiteService.addWebsite(websiteUrl )
+            .subscribe((website) => {
+              this.websites.push(website);
           this.getWebsites();
           this.filterWebsites();
           });
+          this.resultMessage = 'Website adicionado com sucesso';
         });
       } else {
           this.resultMessage = "URL inválido – formato de exemplo: https://www.example.com";
@@ -118,6 +113,7 @@ export class DashboardComponent {
       this.currentPage--;
     }
   }
+
   calculateIndex() {
     const startIndex = (this.currentPage - 1) * this.itemsPerPage;
     const endIndex = Math.min(startIndex + this.itemsPerPage, this.filteredWebsites.length);
@@ -125,10 +121,30 @@ export class DashboardComponent {
   }
 
   delete(website: Website): void {
+    if (website.pages && website.pages.length > 0) {
+      const confirmDelete = confirm(`Are you sure you want to delete this website with ${website.pages.length} pages?`);
+      if (confirmDelete) {
+        this.deletePages(website);
+        this.deleteWebsite(website);
+      }
+    } else {
+      this.deleteWebsite(website);
+    }
+  }
+  
+  private deleteWebsite(website: Website): void {
     this.websites = this.websites.filter((h) => h !== website);
-    this.websiteService.deleteWebsite(website.id).subscribe( () => {
+    this.websiteService.deleteWebsite(website.id).subscribe(() => {
       this.getWebsites();
       this.filterWebsites();
     });
+  }
+
+  private deletePages(website: Website): void {
+    let i: number = 0;
+    for (i = 0; i < website.pages.length; i++) {
+      console.log("Deleting page with ID:", website.pages[i]._id);
+      this.websiteService.deletePage(website.pages[i]._id).subscribe();
+    }
   }
 }

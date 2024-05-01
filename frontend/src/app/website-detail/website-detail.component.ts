@@ -19,6 +19,7 @@ export class WebsiteDetailComponent implements OnInit {
   pageSize: number = 10;
   currentPage: number = 1;
   itemsPerPage: number = 10;
+  pages: WebsitePage[] = [];
   
   constructor(
     private route: ActivatedRoute,
@@ -33,6 +34,9 @@ export class WebsiteDetailComponent implements OnInit {
   getWebsite(): void {
     const id = String(this.route.snapshot.paramMap.get('_id'));
     this.websiteService.getWebsite(id).subscribe((website) => (this.website = website));
+    if (this.website != undefined) {
+      this.pages = this.website.pages;
+    }
   }
 
   goBack(): void{
@@ -95,12 +99,8 @@ export class WebsiteDetailComponent implements OnInit {
                   }
                 }
                 if (!inBD) {
-                  var webPage: WebsitePage = {
-                    url: pageUrl,
-                    monitoringStatus: 'Por avaliar',
-                  }; 
-                
-                  this.websiteService.addPage(webPage)
+                  var webPage: WebsitePage;
+                  this.websiteService.addPage(pageUrl)
                     .pipe(
                       tap((response: WebsitePage) => {
                         webPage = response;
@@ -131,5 +131,20 @@ export class WebsiteDetailComponent implements OnInit {
           this.resultMessage = "URL inválido – formato de exemplo: https://www.example.com";
       }
     }
+  }
+
+  delete(page: WebsitePage): void {
+    this.pages = this.pages.filter((h) => h !== page);
+    this.websiteService.deletePage(page._id).subscribe(() => {
+      if (this.website) {
+        const index = this.website.pages.findIndex(findPage => findPage._id === page._id);
+        this.website.pages.splice(index, 1);
+        this.websiteService.updateWebsite(this.website)
+          .subscribe((response: string) => {
+            this.resultMessage = response;
+          });
+      }
+      window.location.reload();
+    });
   }
 }

@@ -23,19 +23,14 @@ export class WebsiteService {
     private http: HttpClient) { }
 
   // POST Request Websites
-  addWebsite(website: Website): Observable<string> {
-    return this.http.post<string>(this.websiteUrl, website)
-      .pipe(
-        map(() => 'Website adicionado com sucesso'),
-        catchError(error => {
-          console.error(error);
-          return of('Falha ao adicionar site');
-        })
+  addWebsite(website: string): Observable<Website> {
+    return this.http.post<Website>(this.websiteUrl, {url: website}, this.httpOptions).pipe(
+        catchError(this.handleError<Website>('addWebsite'))
       );
   }
 
-  addPage(page: WebsitePage): Observable<WebsitePage>  {
-    return this.http.post<WebsitePage>(this.pageUrl, page, this.httpOptions).pipe(
+  addPage(page: string): Observable<WebsitePage>  {
+    return this.http.post<WebsitePage>(this.pageUrl, {url: page}, this.httpOptions).pipe(
       catchError(this.handleError<WebsitePage>('addPage'))
     );
   }
@@ -86,10 +81,18 @@ export class WebsiteService {
     const url = `${this.websiteUrl}/${id}`;
     return this.http.delete<Website>(url, this.httpOptions).pipe(
       map(() => 'Página adicionada com sucesso'),
-      catchError(this.handleError<Website>('deleteHero'))
+      catchError(this.handleError<Website>('deleteWebsite'))
     );
   }
-  
+
+  /** DELETE: delete the page from the server */
+  deletePage(id: string | undefined): Observable<WebsitePage | string> {
+    const url = `${this.pageUrl}/${id}`;
+    return this.http.delete<WebsitePage>(url, this.httpOptions).pipe(
+      map(() => 'Página adicionada com sucesso'),
+      catchError(this.handleError<WebsitePage>('deletePage'))
+    );
+  }
 
   private handleError<T>(operation = 'operation', result?: T) {
     return (error: any): Observable<T> => {

@@ -1,6 +1,6 @@
 import { WebsitePage } from "./WebsitePage";
 export interface Website {
-    id?: string;
+    id: string;
     url: string;
     monitoringStatus: string;
     registrationDate: Date;

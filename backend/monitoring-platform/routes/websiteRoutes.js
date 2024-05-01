@@ -19,4 +19,6 @@ router.post('/init', websiteController.init);
 
 router.delete("/website/:_id", websiteController.website_delete_get);
 
+router.delete("/page/:_id", websiteController.page_delete_get);
+
 module.exports = router;

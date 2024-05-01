@@ -4,23 +4,26 @@ const asyncHandler = require("express-async-handler");
 const { ObjectId } = require("mongodb");
 
 exports.website_regist = asyncHandler(async (req, res, next) => {
-    const { url, monitoringStatus, registrationDate, pages } = req.body;
-
     try {
-        const newWebsite = await Website.create({ url, monitoringStatus, registrationDate, pages });
-
+        const newWebsite = await Website.create({ 
+          url: req.body.url, 
+          monitoringStatus: 'Por avaliar', 
+          registrationDate: new Date(), 
+          pages: []
+        });
         res.status(201).json(newWebsite);
-
     } catch (error) {
         res.status(500).json({ message: "Falha ao registrar o website", error: error.message });
     }
 });
 
 exports.page_regist = asyncHandler(async (req, res, next) => {
-  const { url, monitoringStatus} = req.body;
-
+  
   try {
-      const newPage = await WebsitePage.create({ url, monitoringStatus});
+      const newPage = await WebsitePage.create({ 
+        url: req.body.url,
+        monitoringStatus: 'Por avaliar'
+      });
 
       res.status(201).json(newPage);
 
@@ -124,6 +127,28 @@ exports.website_delete_get = asyncHandler(async (req, res, next) => {
       return next(error);
     }
     res.json({ message: "Website deleted successfully", deletedWebsite });
+  } catch (err) {
+    return next(err);
+  }
+});
+
+
+exports.page_delete_get = asyncHandler(async (req, res, next) => {
+  try {
+    const pageId = req.params._id;
+    if (!ObjectId.isValid(pageId)) {
+      const err = new Error("ID da página inválido");
+      err.status = 400; // Bad request
+      return next(err);
+    }
+
+    const deletedPage = await WebsitePage.findByIdAndDelete(pageId);
+    if (!deletedPage) {
+      const err = new Error("Página não encontrada");
+      error.status = 404;
+      return next(error);
+    }
+    res.json({ message: "Página apagada corretamente", deletedPage });
   } catch (err) {
     return next(err);
   }
