@@ -20,12 +20,15 @@ export class WebsiteDetailComponent implements OnInit {
   currentPage: number = 1;
   itemsPerPage: number = 10;
   pages: WebsitePage[] = [];
+  selectedPages: WebsitePage[] = [];
   
   constructor(
     private route: ActivatedRoute,
     private websiteService: WebsiteService,
     private location: Location
-  ) {}
+  ) {
+    
+  }
 
   ngOnInit(): void {
     this.getWebsite();
@@ -36,6 +39,29 @@ export class WebsiteDetailComponent implements OnInit {
     this.websiteService.getWebsite(id).subscribe((website) => (this.website = website));
     if (this.website != undefined) {
       this.pages = this.website.pages;
+    }
+  }
+
+  changeCheckedBoxes(page: WebsitePage){
+    if(this.selectedPages.includes(page)) {
+      this.selectedPages = this.selectedPages.filter(cPage => cPage !== page);
+    }
+    else {
+      this.selectedPages.push(page);
+    }
+  }
+
+  evaluatePage(): void {
+    let page: WebsitePage;
+    for(page of this.selectedPages){
+      evaluate(page);
+    }
+  }
+
+  deletePage(): void {
+    let page: WebsitePage;
+    for(page of this.selectedPages){
+      this.delete(page);
     }
   }
 
@@ -144,7 +170,10 @@ export class WebsiteDetailComponent implements OnInit {
             this.resultMessage = response;
           });
       }
-      window.location.reload();
+      //window.location.reload();
     });
   }
 }
+function evaluate(page: WebsitePage) {
+}
+
