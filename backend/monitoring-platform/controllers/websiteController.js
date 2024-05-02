@@ -36,7 +36,13 @@ exports.website_list = asyncHandler(async (req, res, next) => {
   try {
     const list_websites = await Website.find({}, "_id url monitoringStatus registrationDate lastEvaluationDate pages");
     const formattedWebsites = await Promise.all(list_websites.map(async (website) => {
+      console.log("Páginas antes:");
+      console.log(JSON.stringify(website.url));
+      console.log(JSON.stringify(website.pages));
       const pages = await getPageList(website.pages);
+      console.log("AAAAAAAAAAAA");
+      console.log("Páginas depois:");
+      console.log(JSON.stringify(pages));
       return { 
         id: website._id.toString(), 
         url: website.url, 
