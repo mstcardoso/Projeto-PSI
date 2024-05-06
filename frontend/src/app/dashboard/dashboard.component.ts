@@ -78,13 +78,13 @@ export class DashboardComponent {
         this.websiteService.getWebsites().subscribe((websites) => {
           console.log("websites: " + websites)
           for(var web of websites) {
-            if(web.url == websiteUrl){ 
+            if(web.url.includes(websiteUrl) || websiteUrl.includes(web.url)){ 
               this.resultMessage = "Website já na BD";
               return; 
             }
           }
       
-          this.websiteService.addWebsite(websiteUrl )
+          this.websiteService.addWebsite(websiteUrl)
             .subscribe((website) => {
               this.websites.push(website);
           this.getWebsites();

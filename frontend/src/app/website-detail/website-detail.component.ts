@@ -119,7 +119,7 @@ export class WebsiteDetailComponent implements OnInit {
                 
                 console.log(pagesList)
                 for(const page of pagesList){
-                      if(pageUrl == page.url) {
+                      if(pageUrl.includes(page.url) || page.url.includes(pageUrl)) {
                         this.resultMessage = "Página já no banco de dados";
                         inBD = true;
                   }
