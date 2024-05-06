@@ -21,6 +21,7 @@ export class WebsiteDetailComponent implements OnInit {
   itemsPerPage: number = 10;
   pages: WebsitePage[] = [];
   selectedPages: WebsitePage[] = [];
+  earlList: any[] = [];
   
   constructor(
     private route: ActivatedRoute,
@@ -54,7 +55,7 @@ export class WebsiteDetailComponent implements OnInit {
   evaluatePage(): void {
     let page: WebsitePage;
     for(page of this.selectedPages){
-      evaluate(page);
+      this.websiteService.evaluatePage(page.url).subscribe((earlReport) => (this.earlList.push(earlReport)));
     }
   }
 
@@ -100,7 +101,9 @@ export class WebsiteDetailComponent implements OnInit {
   }
 
   add(pageUrl: string) {
-    pageUrl
+    if(pageUrl.charAt(pageUrl.length-1) == '/'){
+      pageUrl = pageUrl.substring(0,pageUrl.length-1);
+    }
     if (!pageUrl) { 
       this.resultMessage = "Por favor insira o URL do website"
     } else {
@@ -119,7 +122,7 @@ export class WebsiteDetailComponent implements OnInit {
                 
                 console.log(pagesList)
                 for(const page of pagesList){
-                      if(pageUrl.includes(page.url) || page.url.includes(pageUrl)) {
+                      if(pageUrl == page.url) {
                         this.resultMessage = "Página já no banco de dados";
                         inBD = true;
                   }
@@ -173,7 +176,5 @@ export class WebsiteDetailComponent implements OnInit {
       //window.location.reload();
     });
   }
-}
-function evaluate(page: WebsitePage) {
 }
 

@@ -71,6 +71,9 @@ export class DashboardComponent {
   }
 
   add(websiteUrl: string) {
+    if(websiteUrl.charAt(websiteUrl.length-1) == '/'){
+      websiteUrl = websiteUrl.substring(0,websiteUrl.length-1);
+    }
     if (!websiteUrl) {  
       this.resultMessage = "Por favor insira o URL do site"
     } else {
