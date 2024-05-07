@@ -67,6 +67,7 @@ export class WebsiteDetailComponent implements OnInit {
       this.currentPage--;
     }
   }
+  
   calculateIndex() {
     const startIndex = (this.currentPage - 1) * this.itemsPerPage;
     const endIndex = this.website && this.website.pages ? Math.min(startIndex + this.itemsPerPage, this.website.pages.length) : 0;
