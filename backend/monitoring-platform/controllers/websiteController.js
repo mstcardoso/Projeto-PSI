@@ -50,7 +50,9 @@ exports.evaluate_page = asyncHandler(async (req, res, next) => {
 
       // transformar o relatório para formato EARL
       // const earlReport = generateEARLReport(report, earlOptions);
+      
       console.log( Object.keys(report[req.body.url]));
+      console.log(report)
       res.status(201).json(report);
   } catch (error) {
       res.status(500).json({ message: "erro", error: error.message });
