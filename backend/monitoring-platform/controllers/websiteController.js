@@ -44,15 +44,9 @@ exports.evaluate_page = asyncHandler(async (req, res, next) => {
 
       // parar o avaliador
       await qualweb.stop();
-
-      // especificar opções do relatório
-      // const earlOptions = {};
-
-      // transformar o relatório para formato EARL
-      // const earlReport = generateEARLReport(report, earlOptions);
       
       console.log( Object.keys(report[req.body.url]));
-      console.log(report)
+      console.log(report[req.body.url]['modules']['act-rules'])
       res.status(201).json(report);
   } catch (error) {
       res.status(500).json({ message: "erro", error: error.message });
