@@ -2,6 +2,56 @@ const Website = require("../models/Website");
 const WebsitePage = require("../models/WebsitePage")
 const asyncHandler = require("express-async-handler");
 const { ObjectId } = require("mongodb");
+// importar avaliador do pacote
+const { QualWeb } = require('@qualweb/core');
+
+
+// o avaliador usa instâncias do browser cccccccccccccChrome para executar a avaliação
+// definir as diferentes opções a usar
+// plugins para bloquear anúncios e para que não seja detectado que o browser que está a ser usado em modo automático
+const plugins = {
+  adBlock: true, // Default value = false
+  stealth: true // Default value = false
+};
+// o avaliador cria um cluster de páginas em avaliação
+// definir o tempo que cada tab do browser vai esperar pelo fim do carregamento da página
+const clusterOptions = {
+  timeout: 60 * 1000, // Timeout for loading page. Default value = 30 seconds
+};
+// opções para lançamento do browser
+const launchOptions = {
+};
+
+exports.evaluate_page = asyncHandler(async (req, res, next) => {
+  try {   
+      // criar instância do avaliador
+      const qualweb = new QualWeb(plugins);
+
+      console.log("12341234")
+      // iniciar o avalidor
+      await qualweb.start(clusterOptions, launchOptions);
+      
+      
+      console.log("asdfasdfasdf")
+      console.log(req.body)
+      // especificar as opções, incluindo o url a avaliar
+      const qualwebOptions = {
+          url: req.body.url // substituir pelo url a avaliar
+      };
+
+      // executar a avaliação, recebendo o relatório
+      const report = await qualweb.evaluate(qualwebOptions);
+
+      // parar o avaliador
+      await qualweb.stop();
+      
+      console.log( Object.keys(report[req.body.url]));
+      console.log(report[req.body.url]['modules']['act-rules'])
+      res.status(201).json(report);
+  } catch (error) {
+      res.status(500).json({ message: "erro", error: error.message });
+  }
+});
 
 exports.website_regist = asyncHandler(async (req, res, next) => {
     try {

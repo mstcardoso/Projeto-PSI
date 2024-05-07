@@ -13,7 +13,8 @@ export class WebsiteService {
   private websitesUrl = 'http://localhost:3090/api/websites'; 
   private pagesUrl = 'http://localhost:3090/api/pages'; 
   private websiteUrl = 'http://localhost:3090/api/website'; 
-  private pageUrl = 'http://localhost:3090/api/page'
+  private pageUrl = 'http://localhost:3090/api/page';
+
   
   httpOptions = {
     headers: new HttpHeaders({ 'Content-Type': 'application/json'})
@@ -21,6 +22,12 @@ export class WebsiteService {
 
   constructor(
     private http: HttpClient) { }
+
+
+  evaluatePage(url: string): Observable<any> {
+    return this.http.post<any>(this.pageUrl + "/evaluate", {url: url}).pipe(
+      catchError(this.handleError<string>('evaluatePage')));
+  }
 
   // POST Request Websites
   addWebsite(website: string): Observable<Website> {
@@ -102,4 +109,6 @@ export class WebsiteService {
       return of(result as T);
     };
   }
+
+  
 }

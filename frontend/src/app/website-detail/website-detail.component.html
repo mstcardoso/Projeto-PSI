@@ -46,7 +46,7 @@
           <th>URL</th>
           <th>Última Avaliação</th>
           <th>Estado</th>
-          <th>Apagar</th>
+          <th>Selecionar</th>
         </tr>
       </thead>
       <tbody>
@@ -58,11 +58,15 @@
           </td>
           <td>{{ page.monitoringStatus }}</td>
           <td>
-            <button type="button" class="delete" title="delete page" (click)="delete(page)">X</button>
+            <input type="checkbox" (click)="changeCheckedBoxes(page)">
           </td>
         </tr>
       </tbody>
     </table>      
+  </div>
+  <div class="manage pages">
+    <button class="evaluate-button" (click)="evaluatePage()">Evaluate</button>
+    <button class="delete-button" (click)="deletePage()">Delete</button>
   </div>
   <div class="pagination">
     <button class="prev-next prev-button" (click)="prevPage()" [disabled]="currentPage === 1">Anterior</button>

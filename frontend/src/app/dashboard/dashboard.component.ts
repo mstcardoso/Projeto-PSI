@@ -71,6 +71,9 @@ export class DashboardComponent {
   }
 
   add(websiteUrl: string) {
+    if(websiteUrl.charAt(websiteUrl.length-1) == '/'){
+      websiteUrl = websiteUrl.substring(0,websiteUrl.length-1);
+    }
     if (!websiteUrl) {  
       this.resultMessage = "Por favor insira o URL do site"
     } else {
@@ -78,13 +81,13 @@ export class DashboardComponent {
         this.websiteService.getWebsites().subscribe((websites) => {
           console.log("websites: " + websites)
           for(var web of websites) {
-            if(web.url == websiteUrl){ 
+            if(web.url.includes(websiteUrl) || websiteUrl.includes(web.url)){ 
               this.resultMessage = "Website já na BD";
               return; 
             }
           }
       
-          this.websiteService.addWebsite(websiteUrl )
+          this.websiteService.addWebsite(websiteUrl)
             .subscribe((website) => {
               this.websites.push(website);
           this.getWebsites();

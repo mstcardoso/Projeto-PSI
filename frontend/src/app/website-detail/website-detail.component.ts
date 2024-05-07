@@ -20,12 +20,16 @@ export class WebsiteDetailComponent implements OnInit {
   currentPage: number = 1;
   itemsPerPage: number = 10;
   pages: WebsitePage[] = [];
+  selectedPages: WebsitePage[] = [];
+  earlList: any[] = [];
   
   constructor(
     private route: ActivatedRoute,
     private websiteService: WebsiteService,
     private location: Location
-  ) {}
+  ) {
+    
+  }
 
   ngOnInit(): void {
     this.getWebsite();
@@ -36,6 +40,29 @@ export class WebsiteDetailComponent implements OnInit {
     this.websiteService.getWebsite(id).subscribe((website) => (this.website = website));
     if (this.website != undefined) {
       this.pages = this.website.pages;
+    }
+  }
+
+  changeCheckedBoxes(page: WebsitePage){
+    if(this.selectedPages.includes(page)) {
+      this.selectedPages = this.selectedPages.filter(cPage => cPage !== page);
+    }
+    else {
+      this.selectedPages.push(page);
+    }
+  }
+
+  evaluatePage(): void {
+    let page: WebsitePage;
+    for(page of this.selectedPages){
+      this.websiteService.evaluatePage(page.url).subscribe((earlReport) => (this.earlList.push(earlReport)));
+    }
+  }
+
+  deletePage(): void {
+    let page: WebsitePage;
+    for(page of this.selectedPages){
+      this.delete(page);
     }
   }
 
@@ -75,7 +102,9 @@ export class WebsiteDetailComponent implements OnInit {
   }
 
   add(pageUrl: string) {
-    pageUrl
+    if(pageUrl.charAt(pageUrl.length-1) == '/'){
+      pageUrl = pageUrl.substring(0,pageUrl.length-1);
+    }
     if (!pageUrl) { 
       this.resultMessage = "Por favor insira o URL do website"
     } else {
@@ -142,6 +171,8 @@ export class WebsiteDetailComponent implements OnInit {
             this.resultMessage = response;
           });
       }
+      //window.location.reload();
     });
   }
 }
+
