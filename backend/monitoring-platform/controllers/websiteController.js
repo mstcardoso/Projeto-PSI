@@ -86,6 +86,7 @@ exports.page_list = asyncHandler(async (req, res, next) => {
 
 
 exports.website_update = asyncHandler(async (req, res, next) => { 
+    console.log(req.body);
     const websiteId = req.params._id;
     const {pages } = req.body;
     
