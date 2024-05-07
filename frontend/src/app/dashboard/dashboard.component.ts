@@ -144,7 +144,7 @@ export class DashboardComponent {
   private deletePages(website: Website): void {
     let i: number = 0;
     for (i = 0; i < website.pages.length; i++) {
-      this.websiteService.deletePage(website.pages[i].id).subscribe();
+      this.websiteService.deletePage(website.pages[i]._id).subscribe();
     }
   }
 }

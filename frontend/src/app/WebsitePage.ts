@@ -1,5 +1,5 @@
 export interface  WebsitePage {
-    id: string;
+    _id: string;
     url: string;
     lastEvaluationDate?: Date;
     monitoringStatus: string;
