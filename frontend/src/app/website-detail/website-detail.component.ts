@@ -143,6 +143,7 @@ export class WebsiteDetailComponent implements OnInit {
                             this.resultMessage = response;
                           });
                       }
+                      window.location.reload();
                     });
                 }
               });
