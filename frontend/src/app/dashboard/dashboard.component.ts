@@ -128,7 +128,7 @@ export class DashboardComponent {
       const confirmDelete = confirm(`Are you sure you want to delete this website with ${website.pages.length} pages?`);
       if (confirmDelete) {
         this.deletePages(website);
-        //this.deleteWebsite(website);
+        this.deleteWebsite(website);
       }
     } else {
       this.deleteWebsite(website);
@@ -147,7 +147,7 @@ export class DashboardComponent {
     let i: number = 0;
     for (i = 0; i < website.pages.length; i++) {
       console.log("ciclo for " + JSON.stringify(website.pages[i]))
-      this.websiteService.deletePage(website.pages[i]._id).subscribe();
+      this.websiteService.deletePage(website.pages[i].id).subscribe();
     }
   }
 }

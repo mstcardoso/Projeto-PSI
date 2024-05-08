@@ -163,9 +163,9 @@ export class WebsiteDetailComponent implements OnInit {
 
   delete(page: WebsitePage): void {
     this.pages = this.pages.filter((h) => h !== page);
-    this.websiteService.deletePage(page._id).subscribe(() => {
+    this.websiteService.deletePage(page.id).subscribe(() => {
       if (this.website) {
-        const index = this.website.pages.findIndex(findPage => findPage._id === page._id);
+        const index = this.website.pages.findIndex(findPage => findPage.id === page.id);
         this.website.pages.splice(index, 1);
         this.websiteService.updateWebsite(this.website)
           .subscribe((response: string) => {
