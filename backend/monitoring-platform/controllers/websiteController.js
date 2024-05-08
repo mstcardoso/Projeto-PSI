@@ -45,8 +45,8 @@ exports.evaluate_page = asyncHandler(async (req, res, next) => {
       // parar o avaliador
       await qualweb.stop();
       
-      console.log( Object.keys(report[req.body.url]));
-      console.log(report[req.body.url]['modules']['act-rules'])
+      //console.log( Object.keys(report[req.body.url]));
+      //console.log(report[req.body.url]['modules']['act-rules'])
       res.status(201).json(report);
   } catch (error) {
       res.status(500).json({ message: "erro", error: error.message });
@@ -132,7 +132,7 @@ exports.page_list = asyncHandler(async (req, res, next) => {
 exports.website_update = asyncHandler(async (req, res, next) => { 
     console.log(req.body);
     const websiteId = req.params._id;
-    const {pages } = req.body;
+    const {pages, monitoringStatus } = req.body;
 
     const updatedPages = pages.map(page => {
         if (!page._id) {
@@ -148,7 +148,7 @@ exports.website_update = asyncHandler(async (req, res, next) => {
     });
     
     try {
-       const updatePage = await Website.findOneAndUpdate({_id: websiteId}, {pages: pages});
+       const updatePage = await Website.findOneAndUpdate({_id: websiteId}, {pages: pages, monitoringStatus: monitoringStatus});
 
        if (!updatePage) {
           return res.status(404).json({ message: 'Website não encontrado' });
