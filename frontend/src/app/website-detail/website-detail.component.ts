@@ -53,10 +53,49 @@ export class WebsiteDetailComponent implements OnInit {
   }
 
   evaluatePage(): void {
-    let page: WebsitePage;
-    for(page of this.selectedPages){
-      this.websiteService.evaluatePage(page.url).subscribe((earlReport) => (this.earlList.push(earlReport)));
+    if (this.selectedPages != null && this.website != null) {
+        let error = false;
+
+        this.website.monitoringStatus = "Em avaliação";
+        this.websiteService.updateWebsite(this.website).subscribe({
+            next: () => {
+                let completedCount = 0;
+
+                for (const page of this.selectedPages) {
+                    this.websiteService.evaluatePage(page.url).subscribe({
+                        next: (earlReport) => {
+                            this.earlList.push(earlReport);
+                            if ((!earlReport || Object.keys(earlReport).length === 0) && this.website != null) {
+                                error = true;
+                                this.website.monitoringStatus = "Erro na avaliação";
+                                this.updateWebsiteIfNeeded(error);
+                            }
+
+                            completedCount++;
+
+                            if (completedCount === this.selectedPages.length && !error && this.website != null) {
+                                this.website.monitoringStatus = "Avaliado";
+                                this.updateWebsiteIfNeeded(error);
+                            }
+                        }
+                    });
+                }
+            },
+            error: (error) => {
+                console.error("Falha ao atualizar status de monitoramento:", error);
+            }
+        });
     }
+  } 
+
+  private updateWebsiteIfNeeded(error: boolean): void {
+      if (this.website != null) {
+          this.websiteService.updateWebsite(this.website).subscribe({
+              error: (updateError) => {
+                  console.error("Falha ao atualizar status de monitoramento:", updateError);
+              }
+          });
+      }
   }
 
   deletePage(): void {
