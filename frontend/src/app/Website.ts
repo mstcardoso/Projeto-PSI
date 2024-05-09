@@ -4,6 +4,7 @@ export interface Website {
     url: string;
     monitoringStatus: string;
     registrationDate: Date;
-    lastEvaluationDate?: Date;
     pages: WebsitePage[];
+    lastEvaluationDate?: Date;
+    commonErrors?: string[];
 }

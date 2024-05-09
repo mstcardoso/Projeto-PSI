@@ -27,13 +27,9 @@ exports.evaluate_page = asyncHandler(async (req, res, next) => {
       // criar instância do avaliador
       const qualweb = new QualWeb(plugins);
 
-      console.log("12341234")
       // iniciar o avalidor
       await qualweb.start(clusterOptions, launchOptions);
       
-      
-      console.log("asdfasdfasdf")
-      console.log(req.body)
       // especificar as opções, incluindo o url a avaliar
       const qualwebOptions = {
           url: req.body.url // substituir pelo url a avaliar
@@ -44,9 +40,104 @@ exports.evaluate_page = asyncHandler(async (req, res, next) => {
 
       // parar o avaliador
       await qualweb.stop();
+
+      //console.log(report[req.body.url]['modules']['act-rules']['assertions']['QW-ACT-R40']['results'])
+      /* array1.forEach((element) => console.log(element));
+      for(let i = 0; i < Object.keys(report[req.body.url]['modules']['act-rules']['assertions']).length; i++) {
+        console.log(report[req.body.url]['modules']['act-rules']['assertions'])
+        for(let j = 0; j < Object.keys(report[req.body.url]['modules']['act-rules']['assertions'][i]['results']); j++) {
+          console.log("1234")
+          if(report[req.body.url]['modules']['act-rules']['assertions'][i]['results'][j]['verdict'] == 'failed')
+            console.log("encontrou um failed")
+        }
+      } */ 
+      var failedA = false
+      var failedAA = false 
+      var failedAAA = false
+      var failedTests = []
+      const commonErrors = new Map()
+      //console.log(report[req.body.url]['modules']['wcag-techniques']['assertions'])
+      for(let assertion of Object.keys(report[req.body.url]['modules']['act-rules']['assertions'])) {
+        for(let element of Object.keys(report[req.body.url]['modules']['act-rules']['assertions'][assertion]['metadata'])){
+          if(Object.keys(report[req.body.url]['modules']['act-rules']['assertions'][assertion]['metadata'][element]['failed'] > 0)) {
+            if(assertion in commonErrors){
+              commonErrors[assertion] += 1
+            }
+            else {
+              commonErrors[assertion] = 1
+            }
+            for(let criteria of Object.keys(report[req.body.url]['modules']['act-rules']['assertions'][assertion]['metadata'][element])){
+              if(Object.keys(report[req.body.url]['modules']['act-rules']['assertions'][assertion]['metadata'][element][criteria]['level'] == 'A')){
+                failedA = true
+              }
+              if(Object.keys(report[req.body.url]['modules']['act-rules']['assertions'][assertion]['metadata'][element][criteria]['level'] == 'AA')){
+                failedAA = true
+              }
+              if(Object.keys(report[req.body.url]['modules']['act-rules']['assertions'][assertion]['metadata'][element][criteria]['level'] == 'AAA')){
+                failedAAA = true
+              }
+            }
+          }
+        }
+
+
+        /* for(let result of Object.keys(report[req.body.url]['modules']['act-rules']['assertions'][assertion]['results'])){
+          if(Object.keys(report[req.body.url]['modules']['act-rules']['assertions'][assertion]['results'][result]['verdict'] == 'failed')){
+
+          //TODO CONSIDERAR COMO PAGINA C ERRO
+          }
+            
+        } */
+      }
+
       
-      console.log( Object.keys(report[req.body.url]));
-      console.log(report[req.body.url]['modules']['act-rules'])
+      for(let assertion of Object.keys(report[req.body.url]['modules']['wcag-techniques']['assertions'])) {
+        for(let element of Object.keys(report[req.body.url]['modules']['wcag-techniques']['assertions'][assertion]['metadata'])){
+          if(Object.keys(report[req.body.url]['modules']['wcag-techniques']['assertions'][assertion]['metadata'][element]['failed'] > 0)) {
+            if(assertion in commonErrors){
+              commonErrors[assertion] += 1
+            }
+            else {
+              commonErrors[assertion] = 1
+            }
+            for(let criteria of Object.keys(report[req.body.url]['modules']['wcag-techniques']['assertions'][assertion]['metadata'][element])){
+              if(Object.keys(report[req.body.url]['modules']['wcag-techniques']['assertions'][assertion]['metadata'][element][criteria]['level'] == 'A')){
+                failedA = true
+              }
+              if(Object.keys(report[req.body.url]['modules']['wcag-techniques']['assertions'][assertion]['metadata'][element][criteria]['level'] == 'AA')){
+                failedAA = true
+              }
+              if(Object.keys(report[req.body.url]['modules']['wcag-techniques']['assertions'][assertion]['metadata'][element][criteria]['level'] == 'AAA')){
+                failedAAA = true
+              }
+            }
+          }
+        }
+
+        /* for(let result of Object.keys(report[req.body.url]['modules']['act-rules']['assertions'][assertion]['results'])){
+          if(Object.keys(report[req.body.url]['modules']['act-rules']['assertions'][assertion]['results'][result]['verdict'] == 'failed')){
+
+          //TODO CONSIDERAR COMO PAGINA C ERRO
+          }
+            
+        } */
+      }
+      
+
+      failedTests = [failedA, failedAA, failedAAA]
+      
+      let entries = Object.entries(commonErrors);
+
+      entries.sort((a, b) => b[1] - a[1]);
+      
+      let sortedCommonErrors = Object.fromEntries(entries);
+
+      // enviar se o pagina tem erro
+      // enviar se tem erros A AA AAA
+      // enviar top 10 erros
+
+      console.log(sortedCommonErrors)
+      console.log(report[req.body.url]['system']['date']) // guardar esta data na DB
       res.status(201).json(report);
   } catch (error) {
       res.status(500).json({ message: "erro", error: error.message });

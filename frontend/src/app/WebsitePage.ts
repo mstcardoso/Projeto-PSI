@@ -3,4 +3,5 @@ export interface  WebsitePage {
     url: string;
     lastEvaluationDate?: Date;
     monitoringStatus: string;
+    errors?: boolean[];
 }
