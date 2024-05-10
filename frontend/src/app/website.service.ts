@@ -24,8 +24,9 @@ export class WebsiteService {
     private http: HttpClient) { }
 
 
-  evaluatePage(url: string): Observable<any> {
-    return this.http.post<any>(this.pageUrl + "/evaluate", {url: url}).pipe(
+  evaluatePage(url: string, id: string): Observable<any> {
+    const data = {url: url, id: id}
+    return this.http.post<any>(this.pageUrl + "/evaluate", data).pipe(
       catchError(this.handleError<string>('evaluatePage')));
   }
 
@@ -50,6 +51,15 @@ export class WebsiteService {
         if (website && website._id) {
           website.id = website._id.toString(); // Convert ObjectId to string
           delete website._id; // Remove _id field if needed
+        }
+
+        if (website.pages && Array.isArray(website.pages)) {
+          website.pages.forEach((page: any) => {
+            if (page && page._id) {
+              page.id = page._id.toString(); // Convert ObjectId to string
+              delete page._id; // Remove _id field if needed
+            }
+          });
         }
         return website as Website;
       }),

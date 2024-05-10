@@ -61,10 +61,10 @@ exports.evaluate_page = asyncHandler(async (req, res, next) => {
         for(let element of Object.keys(report[req.body.url]['modules']['act-rules']['assertions'][assertion]['metadata'])){
           if(Object.keys(report[req.body.url]['modules']['act-rules']['assertions'][assertion]['metadata'][element]['failed'] > 0)) {
             if(assertion in commonErrors){
-              commonErrors[assertion] += 1
+              commonErrors[assertion] = (parseInt(commonErrors[assertion]) + 1).toString()
             }
             else {
-              commonErrors[assertion] = 1
+              commonErrors[assertion] = '1'
             }
             for(let criteria of Object.keys(report[req.body.url]['modules']['act-rules']['assertions'][assertion]['metadata'][element])){
               if(Object.keys(report[req.body.url]['modules']['act-rules']['assertions'][assertion]['metadata'][element][criteria]['level'] == 'A')){
@@ -95,10 +95,10 @@ exports.evaluate_page = asyncHandler(async (req, res, next) => {
         for(let element of Object.keys(report[req.body.url]['modules']['wcag-techniques']['assertions'][assertion]['metadata'])){
           if(Object.keys(report[req.body.url]['modules']['wcag-techniques']['assertions'][assertion]['metadata'][element]['failed'] > 0)) {
             if(assertion in commonErrors){
-              commonErrors[assertion] += 1
+              commonErrors[assertion] = (parseInt(commonErrors[assertion]) + 1).toString()
             }
             else {
-              commonErrors[assertion] = 1
+              commonErrors[assertion] = '1'
             }
             for(let criteria of Object.keys(report[req.body.url]['modules']['wcag-techniques']['assertions'][assertion]['metadata'][element])){
               if(Object.keys(report[req.body.url]['modules']['wcag-techniques']['assertions'][assertion]['metadata'][element][criteria]['level'] == 'A')){
@@ -133,14 +133,53 @@ exports.evaluate_page = asyncHandler(async (req, res, next) => {
       let sortedCommonErrors = Object.fromEntries(entries);
 
       // enviar se o pagina tem erro
-      // enviar se tem erros A AA AAA
-      // enviar top 10 erros
+      // enviar se tem erros A AA AAA para WebsitePage
+      // enviar top 10 erros guardar no mapa
 
+      const date = report[req.body.url]['system']['date'] // guardar esta data na DB
+      console.log("----------------")
+      console.log(req.body.id)
+      console.log(date)
       console.log(sortedCommonErrors)
-      console.log(report[req.body.url]['system']['date']) // guardar esta data na DB
-      res.status(201).json(report);
+      const updatePage = await WebsitePage.findOneAndUpdate({_id: req.body.id}, {lastEvaluationDate: date, errorsType: failedTests});
+
+      if (!updatePage) {
+         return res.status(404).json({ message: 'Website não encontrado' });
+      }
+
+      res.status(201).json(updatePage);
   } catch (error) {
       res.status(500).json({ message: "erro", error: error.message });
+  }
+});
+
+async function page_222update(pageID, errors, date) {
+  try {
+    console.log(errors)
+    const updatedObject = await ObjectModel.findByIdAndUpdate(pageID, { errorsType: errors }, { new: true });
+    console.log("Updated222");
+    updatedObject = await ObjectModel.findByIdAndUpdate(pageID, { lastEvaluationDate: date }, { new: true });
+    console.log("Updated object:", updatedObject);
+  } catch (error) {
+      console.error("Fodeu")
+  }
+}
+
+exports.page_update = asyncHandler(async (req, res, next) => { 
+  //console.log(req.body);
+  const pageId = req.body.id;
+  
+  try {
+     const updatePage = await WebsitePage.findOneAndUpdate({id: pageId}, {lastEvaluationDate: date}, {commonErrors: errors});
+
+     if (!updatePage) {
+        return res.status(404).json({ message: 'Página não encontrado' });
+     }
+
+     res.json(updatePage);
+
+  } catch (error) {
+    res.status(500).json({ message: "Falha ao atualizar a página", error: error.message });
   }
 });
 
@@ -221,7 +260,7 @@ exports.page_list = asyncHandler(async (req, res, next) => {
 
 
 exports.website_update = asyncHandler(async (req, res, next) => { 
-    console.log(req.body);
+    //console.log(req.body);
     const websiteId = req.params._id;
     const {pages } = req.body;
 

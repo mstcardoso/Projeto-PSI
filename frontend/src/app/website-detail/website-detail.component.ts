@@ -55,7 +55,7 @@ export class WebsiteDetailComponent implements OnInit {
   evaluatePage(): void {
     let page: WebsitePage;
     for(page of this.selectedPages){
-      this.websiteService.evaluatePage(page.url).subscribe((earlReport) => (this.earlList.push(earlReport)));
+      this.websiteService.evaluatePage(page.url, page.id).subscribe();
     }
   }
 

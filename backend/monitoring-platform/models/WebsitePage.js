@@ -6,7 +6,7 @@ const WebsitePageSchema = new Schema({
     url: { type: String, required: true },
     lastEvaluationDate: { type: Date},
     monitoringStatus: { type: String, required: true },
-    errors: { type: Array, of: Boolean, required: false },
+    errorsType: { type: Array, of: Boolean, required: false },
 });
 
 module.exports = mongoose.model("WebsitePage", WebsitePageSchema);
