@@ -28,7 +28,26 @@ export class DashboardComponent {
   }
 
   getWebsites(): void {
-    this.websiteService.getWebsites().subscribe((websites) =>{ (this.websites = websites); this.filterWebsites();console.log(JSON.stringify(websites)); });
+    this.websiteService.getWebsites().subscribe((websites) => {
+        this.websites = websites.map(website => {
+          if (website.monitoringStatus !== 'Erro na avaliação') {
+            let pagesToEvaluate = website.pages.filter(page => page.monitoringStatus === 'Por avaliar');
+        
+            if (pagesToEvaluate.length === website.pages.length) {
+                website.monitoringStatus = 'Por avaliar';
+            } else {
+                let pagesInEvaluation = website.pages.filter(page => page.monitoringStatus === 'Em avaliação');
+        
+                if (pagesInEvaluation.length > 0 || pagesToEvaluate.length > 0) {
+                    website.monitoringStatus = 'Em avaliação';
+                }
+            }
+          }
+          return website;
+        });
+        this.filterWebsites();
+        console.log(JSON.stringify(websites));
+    });
   }
 
   filterSelection(event: Event) {
