@@ -7,6 +7,7 @@ const WebsitePageSchema = new Schema({
     lastEvaluationDate: { type: Date},
     monitoringStatus: { type: String, required: true },
     errorsType: { type: Array, of: Boolean, required: false },
+    commonErrors: { type: Map, of: String, required: false },
 });
 
 module.exports = mongoose.model("WebsitePage", WebsitePageSchema);

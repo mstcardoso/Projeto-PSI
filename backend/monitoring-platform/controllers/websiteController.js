@@ -23,163 +23,136 @@ const launchOptions = {
 };
 
 exports.evaluate_page = asyncHandler(async (req, res, next) => {
-  try {   
-      // criar instância do avaliador
-      const qualweb = new QualWeb(plugins);
+  var report
+  try {
+    // criar instância do avaliador
+    const qualweb = new QualWeb(plugins);
 
-      // iniciar o avalidor
-      await qualweb.start(clusterOptions, launchOptions);
-      
-      // especificar as opções, incluindo o url a avaliar
-      const qualwebOptions = {
-          url: req.body.url // substituir pelo url a avaliar
-      };
+    // iniciar o avalidor
+    await qualweb.start(clusterOptions, launchOptions);
+    
+    // especificar as opções, incluindo o url a avaliar
+    const qualwebOptions = {
+        url: req.body.url // substituir pelo url a avaliar
+    };
 
-      // executar a avaliação, recebendo o relatório
-      const report = await qualweb.evaluate(qualwebOptions);
+    // executar a avaliação, recebendo o relatório
+    report = await qualweb.evaluate(qualwebOptions);
 
-      // parar o avaliador
-      await qualweb.stop();
+    // parar o avaliador
+    await qualweb.stop();
+  } catch (error) {
+    console.log("123")
+    const updatePage = await WebsitePage.findOneAndUpdate({_id: req.body.id}, {monitoringStatus: "Erro na avaliação"});
+    res.status(500).json({message: "Erro na avaliação"});
+    return
+  }
 
-      //console.log(report[req.body.url]['modules']['act-rules']['assertions']['QW-ACT-R40']['results'])
-      /* array1.forEach((element) => console.log(element));
-      for(let i = 0; i < Object.keys(report[req.body.url]['modules']['act-rules']['assertions']).length; i++) {
-        console.log(report[req.body.url]['modules']['act-rules']['assertions'])
-        for(let j = 0; j < Object.keys(report[req.body.url]['modules']['act-rules']['assertions'][i]['results']); j++) {
-          console.log("1234")
-          if(report[req.body.url]['modules']['act-rules']['assertions'][i]['results'][j]['verdict'] == 'failed')
-            console.log("encontrou um failed")
-        }
-      } */ 
-      var failedA = false
-      var failedAA = false 
-      var failedAAA = false
-      var failedTests = []
-      const commonErrors = new Map()
-      //console.log(report[req.body.url]['modules']['wcag-techniques']['assertions'])
-      for(let assertion of Object.keys(report[req.body.url]['modules']['act-rules']['assertions'])) {
-        for(let element of Object.keys(report[req.body.url]['modules']['act-rules']['assertions'][assertion]['metadata'])){
-          if(Object.keys(report[req.body.url]['modules']['act-rules']['assertions'][assertion]['metadata'][element]['failed'] > 0)) {
-            if(assertion in commonErrors){
-              commonErrors[assertion] = (parseInt(commonErrors[assertion]) + 1).toString()
+  try {
+    var failedA = false
+    var failedAA = false 
+    var failedAAA = false
+    var failedTests = []
+    const commonErrors = new Map()
+    //console.log(report[req.body.url]['modules']['wcag-techniques']['assertions'])
+    for(let assertion of Object.keys(report[req.body.url]['modules']['act-rules']['assertions'])) {
+      for(let element of Object.keys(report[req.body.url]['modules']['act-rules']['assertions'][assertion]['metadata'])){
+        if(Object.keys(report[req.body.url]['modules']['act-rules']['assertions'][assertion]['metadata'][element]['failed'] > 0)) {
+          if(assertion in commonErrors){
+            commonErrors[assertion] = (parseInt(commonErrors[assertion]) + 1).toString()
+          }
+          else {
+            commonErrors[assertion] = '1'
+          }
+          for(let criteria of Object.keys(report[req.body.url]['modules']['act-rules']['assertions'][assertion]['metadata'][element])){
+            if(Object.keys(report[req.body.url]['modules']['act-rules']['assertions'][assertion]['metadata'][element][criteria]['level'] == 'A')){
+              failedA = true
             }
-            else {
-              commonErrors[assertion] = '1'
+            if(Object.keys(report[req.body.url]['modules']['act-rules']['assertions'][assertion]['metadata'][element][criteria]['level'] == 'AA')){
+              failedAA = true
             }
-            for(let criteria of Object.keys(report[req.body.url]['modules']['act-rules']['assertions'][assertion]['metadata'][element])){
-              if(Object.keys(report[req.body.url]['modules']['act-rules']['assertions'][assertion]['metadata'][element][criteria]['level'] == 'A')){
-                failedA = true
-              }
-              if(Object.keys(report[req.body.url]['modules']['act-rules']['assertions'][assertion]['metadata'][element][criteria]['level'] == 'AA')){
-                failedAA = true
-              }
-              if(Object.keys(report[req.body.url]['modules']['act-rules']['assertions'][assertion]['metadata'][element][criteria]['level'] == 'AAA')){
-                failedAAA = true
-              }
+            if(Object.keys(report[req.body.url]['modules']['act-rules']['assertions'][assertion]['metadata'][element][criteria]['level'] == 'AAA')){
+              failedAAA = true
             }
           }
         }
-
-
-        /* for(let result of Object.keys(report[req.body.url]['modules']['act-rules']['assertions'][assertion]['results'])){
-          if(Object.keys(report[req.body.url]['modules']['act-rules']['assertions'][assertion]['results'][result]['verdict'] == 'failed')){
-
-          //TODO CONSIDERAR COMO PAGINA C ERRO
-          }
-            
-        } */
       }
 
-      
-      for(let assertion of Object.keys(report[req.body.url]['modules']['wcag-techniques']['assertions'])) {
-        for(let element of Object.keys(report[req.body.url]['modules']['wcag-techniques']['assertions'][assertion]['metadata'])){
-          if(Object.keys(report[req.body.url]['modules']['wcag-techniques']['assertions'][assertion]['metadata'][element]['failed'] > 0)) {
-            if(assertion in commonErrors){
-              commonErrors[assertion] = (parseInt(commonErrors[assertion]) + 1).toString()
+
+      /* for(let result of Object.keys(report[req.body.url]['modules']['act-rules']['assertions'][assertion]['results'])){
+        if(Object.keys(report[req.body.url]['modules']['act-rules']['assertions'][assertion]['results'][result]['verdict'] == 'failed')){
+
+        //TODO CONSIDERAR COMO PAGINA C ERRO
+        }
+          
+      } */
+    }
+
+    
+    for(let assertion of Object.keys(report[req.body.url]['modules']['wcag-techniques']['assertions'])) {
+      for(let element of Object.keys(report[req.body.url]['modules']['wcag-techniques']['assertions'][assertion]['metadata'])){
+        if(Object.keys(report[req.body.url]['modules']['wcag-techniques']['assertions'][assertion]['metadata'][element]['failed'] > 0)) {
+          if(assertion in commonErrors){
+            commonErrors[assertion] = (parseInt(commonErrors[assertion]) + 1).toString()
+          }
+          else {
+            commonErrors[assertion] = '1'
+          }
+          for(let criteria of Object.keys(report[req.body.url]['modules']['wcag-techniques']['assertions'][assertion]['metadata'][element])){
+            if(Object.keys(report[req.body.url]['modules']['wcag-techniques']['assertions'][assertion]['metadata'][element][criteria]['level'] == 'A')){
+              failedA = true
             }
-            else {
-              commonErrors[assertion] = '1'
+            if(Object.keys(report[req.body.url]['modules']['wcag-techniques']['assertions'][assertion]['metadata'][element][criteria]['level'] == 'AA')){
+              failedAA = true
             }
-            for(let criteria of Object.keys(report[req.body.url]['modules']['wcag-techniques']['assertions'][assertion]['metadata'][element])){
-              if(Object.keys(report[req.body.url]['modules']['wcag-techniques']['assertions'][assertion]['metadata'][element][criteria]['level'] == 'A')){
-                failedA = true
-              }
-              if(Object.keys(report[req.body.url]['modules']['wcag-techniques']['assertions'][assertion]['metadata'][element][criteria]['level'] == 'AA')){
-                failedAA = true
-              }
-              if(Object.keys(report[req.body.url]['modules']['wcag-techniques']['assertions'][assertion]['metadata'][element][criteria]['level'] == 'AAA')){
-                failedAAA = true
-              }
+            if(Object.keys(report[req.body.url]['modules']['wcag-techniques']['assertions'][assertion]['metadata'][element][criteria]['level'] == 'AAA')){
+              failedAAA = true
             }
           }
         }
-
-        /* for(let result of Object.keys(report[req.body.url]['modules']['act-rules']['assertions'][assertion]['results'])){
-          if(Object.keys(report[req.body.url]['modules']['act-rules']['assertions'][assertion]['results'][result]['verdict'] == 'failed')){
-
-          //TODO CONSIDERAR COMO PAGINA C ERRO
-          }
-            
-        } */
-      }
-      
-
-      failedTests = [failedA, failedAA, failedAAA]
-      
-      let entries = Object.entries(commonErrors);
-
-      entries.sort((a, b) => b[1] - a[1]);
-      
-      let sortedCommonErrors = Object.fromEntries(entries);
-
-      // enviar se o pagina tem erro
-      // enviar se tem erros A AA AAA para WebsitePage
-      // enviar top 10 erros guardar no mapa
-
-      const date = report[req.body.url]['system']['date'] // guardar esta data na DB
-      console.log("----------------")
-      console.log(req.body.id)
-      console.log(date)
-      console.log(sortedCommonErrors)
-      const updatePage = await WebsitePage.findOneAndUpdate({_id: req.body.id}, {lastEvaluationDate: date, errorsType: failedTests});
-
-      if (!updatePage) {
-         return res.status(404).json({ message: 'Website não encontrado' });
       }
 
-      res.status(201).json(updatePage);
+      /* for(let result of Object.keys(report[req.body.url]['modules']['act-rules']['assertions'][assertion]['results'])){
+        if(Object.keys(report[req.body.url]['modules']['act-rules']['assertions'][assertion]['results'][result]['verdict'] == 'failed')){
+
+        //TODO CONSIDERAR COMO PAGINA C ERRO
+        }
+          
+      } */
+    }
+    
+
+    failedTests = [failedA, failedAA, failedAAA]
+    
+    let entries = Object.entries(commonErrors);
+
+    entries.sort((a, b) => b[1] - a[1]);
+    
+    let sortedCommonErrors = Object.fromEntries(entries);
+
+    // enviar se o pagina tem erro
+    // enviar se tem erros A AA AAA para WebsitePage
+    // enviar top 10 erros guardar no mapa
+
+    const date = report[req.body.url]['system']['date'] // guardar esta data na DB
+    console.log("----------------")
+    console.log(req.body.id)
+    console.log(date)
+    console.log(sortedCommonErrors)
+    
+    // atualizar pagina
+    let estado = "Conforme"
+    if(failedTests[0] || failedTests[1])
+      estado = "Não conforme"
+    const updatePage = await WebsitePage.findOneAndUpdate({_id: req.body.id}, {monitoringStatus: estado, lastEvaluationDate: date, errorsType: failedTests, commonErrors: sortedCommonErrors});
+
+    if (!updatePage) {
+        return res.status(404).json({ message: 'Website não encontrado' });
+    }
+
+    res.status(201).json(updatePage);
   } catch (error) {
       res.status(500).json({ message: "erro", error: error.message });
-  }
-});
-
-async function page_222update(pageID, errors, date) {
-  try {
-    console.log(errors)
-    const updatedObject = await ObjectModel.findByIdAndUpdate(pageID, { errorsType: errors }, { new: true });
-    console.log("Updated222");
-    updatedObject = await ObjectModel.findByIdAndUpdate(pageID, { lastEvaluationDate: date }, { new: true });
-    console.log("Updated object:", updatedObject);
-  } catch (error) {
-      console.error("Fodeu")
-  }
-}
-
-exports.page_update = asyncHandler(async (req, res, next) => { 
-  //console.log(req.body);
-  const pageId = req.body.id;
-  
-  try {
-     const updatePage = await WebsitePage.findOneAndUpdate({id: pageId}, {lastEvaluationDate: date}, {commonErrors: errors});
-
-     if (!updatePage) {
-        return res.status(404).json({ message: 'Página não encontrado' });
-     }
-
-     res.json(updatePage);
-
-  } catch (error) {
-    res.status(500).json({ message: "Falha ao atualizar a página", error: error.message });
   }
 });
 

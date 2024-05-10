@@ -26,6 +26,7 @@ export class WebsiteService {
 
   evaluatePage(url: string, id: string): Observable<any> {
     const data = {url: url, id: id}
+    
     return this.http.post<any>(this.pageUrl + "/evaluate", data).pipe(
       catchError(this.handleError<string>('evaluatePage')));
   }

@@ -55,7 +55,9 @@ export class WebsiteDetailComponent implements OnInit {
   evaluatePage(): void {
     let page: WebsitePage;
     for(page of this.selectedPages){
+      page.monitoringStatus = "Em avaliação"
       this.websiteService.evaluatePage(page.url, page.id).subscribe();
+      //window.location.reload()
     }
   }
 
