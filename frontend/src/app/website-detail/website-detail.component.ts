@@ -37,10 +37,12 @@ export class WebsiteDetailComponent implements OnInit {
 
   getWebsite(): void {
     const id = String(this.route.snapshot.paramMap.get('_id'));
-    this.websiteService.getWebsite(id).subscribe((website) => (this.website = website));
-    if (this.website != undefined) {
-      this.pages = this.website.pages;
-    }
+    this.websiteService.getWebsite(id).subscribe((website) => {
+        this.website = website;
+        if (this.website != undefined) {
+            this.pages = this.website.pages;
+        }
+    });
   }
 
   changeCheckedBoxes(page: WebsitePage){
@@ -149,6 +151,7 @@ export class WebsiteDetailComponent implements OnInit {
     }
     return accessibilityErrors;
   }
+  
   deletePage(): void {
     let page: WebsitePage;
     for(page of this.selectedPages){
@@ -233,7 +236,7 @@ export class WebsiteDetailComponent implements OnInit {
                             this.resultMessage = response;
                           });
                       }
-                      window.location.reload();
+                      this.getWebsite();
                     });
                 }
               });

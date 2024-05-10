@@ -50,7 +50,7 @@
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let page of website.pages.slice(calculateIndex().startIndex, calculateIndex().endIndex)">
+        <tr *ngFor="let page of pages.slice(calculateIndex().startIndex, calculateIndex().endIndex)">
           <td>{{ page.url }}</td>
           <td>
             <ng-container *ngIf="page.lastEvaluationDate; else none">{{ page.lastEvaluationDate | date:'dd/MM/yyyy HH:mm:ss' }}</ng-container>

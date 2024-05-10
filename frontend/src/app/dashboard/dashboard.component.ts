@@ -46,7 +46,6 @@ export class DashboardComponent {
           return website;
         });
         this.filterWebsites();
-        console.log(JSON.stringify(websites));
     });
   }
 
