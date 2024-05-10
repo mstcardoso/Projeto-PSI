@@ -14,6 +14,7 @@ export class WebsiteService {
   private pagesUrl = 'http://localhost:3090/api/pages'; 
   private websiteUrl = 'http://localhost:3090/api/website'; 
   private pageUrl = 'http://localhost:3090/api/page';
+  private reportUrl = 'http://localhost:3090/api/report';
 
   
   httpOptions = {
@@ -24,12 +25,10 @@ export class WebsiteService {
     private http: HttpClient) { }
 
 
-  evaluatePage(url: string, id: string): Observable<any> {
-    const data = {url: url, id: id}
-    
-    return this.http.post<any>(this.pageUrl + "/evaluate", data).pipe(
-      catchError(this.handleError<string>('evaluatePage')));
-  }
+  evaluatePage(url: string): Observable<any> {
+      return this.http.post<any>(this.pageUrl + "/evaluate", {url: url}).pipe(
+        catchError(this.handleError<string>('evaluatePage')));
+    }
 
   // POST Request Websites
   addWebsite(website: string): Observable<Website> {
@@ -41,6 +40,13 @@ export class WebsiteService {
   addPage(page: string): Observable<WebsitePage>  {
     return this.http.post<WebsitePage>(this.pageUrl, {url: page}, this.httpOptions).pipe(
       catchError(this.handleError<WebsitePage>('addPage'))
+    );
+  }
+
+  addReport(report: any): Observable<any> {
+    console.log("REPORTTTTTTTTT")
+    return this.http.post<any>(this.reportUrl, report, this.httpOptions).pipe(
+      catchError(this.handleError<WebsitePage>('addReport'))
     );
   }
 
@@ -89,8 +95,16 @@ export class WebsiteService {
   updateWebsite(website: Website): Observable<string> {
     const url = `${this.websiteUrl}/${website.id}`;
     return this.http.put(url, website, this.httpOptions).pipe(
-      map(() => 'Página adicionada com sucesso'),
-      catchError(() => of('Falha ao adicionar página'))
+      map(() => 'Website actualizada com sucesso'),
+      catchError(() => of('Falha ao actualizar website'))
+    );
+  }
+
+  updatePage(page: WebsitePage): Observable<string> {
+    const url = `${this.pageUrl}/${page.id}`;
+    return this.http.put(url, page, this.httpOptions).pipe(
+      map(() => 'Página actualizada com sucesso'),
+      catchError(() => of('Falha ao actualizar página'))
     );
   }
 

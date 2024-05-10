@@ -8,6 +8,7 @@ const WebsitePageSchema = new Schema({
     monitoringStatus: { type: String, required: true },
     errorsType: { type: Array, of: Boolean, required: false },
     commonErrors: { type: Map, of: String, required: false },
+    report: { type: [Schema.Types.ObjectId], ref: "Report", required: true},
 });
 
 module.exports = mongoose.model("WebsitePage", WebsitePageSchema);

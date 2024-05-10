@@ -53,14 +53,102 @@ export class WebsiteDetailComponent implements OnInit {
   }
 
   evaluatePage(): void {
-    let page: WebsitePage;
-    for(page of this.selectedPages){
-      page.monitoringStatus = "Em avaliação"
-      this.websiteService.evaluatePage(page.url, page.id).subscribe();
-      //window.location.reload()
+    if (this.selectedPages != null && this.website != null) {
+        let error = false;
+
+        this.website.monitoringStatus = "Em avaliação";
+        this.websiteService.updateWebsite(this.website).subscribe({
+            next: () => {
+                let completedCount = 0;
+
+                for (const page of this.selectedPages) {
+                  this.updatePage(page, "Em avaliação");
+                    this.websiteService.evaluatePage(page.url).subscribe({
+                        next: (earlReport) => {
+                            if ((!earlReport || Object.keys(earlReport).length === 0 || earlReport.message == "erro") && this.website != null) {
+                              error = true;
+                              this.website.monitoringStatus = "Erro na avaliação";
+                              this.website.lastEvaluationDate = new Date();
+                              page.lastEvaluationDate = new Date();
+                              this.updatePage(page, "Erro na avaliação");
+                              this.updateWebsiteIfNeeded(error);
+                            } else {
+                              
+                              const accessibilityErrors = this.getAccessibilityErrors(earlReport, page);
+
+                              if (accessibilityErrors.A == 0 && accessibilityErrors.AA == 0) {
+                                this.updatePage(page, "Conforme");
+                              } else {
+                                this.updatePage(page, "Não conforme");
+                                console.log(earlReport);
+                              }
+                            
+                              this.earlList.push(earlReport);
+                            }
+                            completedCount++;
+                            if (completedCount === this.selectedPages.length && !error && this.website != null) {
+                              this.website.monitoringStatus = "Avaliado";
+                              this.website.lastEvaluationDate = new Date();
+                              this.updateWebsiteIfNeeded(error);
+                              console.log(earlReport);
+                            }
+                            this.websiteService.addReport(earlReport);
+                        }
+                    });
+                }
+            },
+            error: (error) => {
+                console.error("Falha ao atualizar status de monitoramento:", error);
+            }
+        });
+    }
+  } 
+  private updatePage(page: WebsitePage, status: string) {
+    if (page != null) {
+      page.monitoringStatus = status;
+      page.lastEvaluationDate = new Date();
+      this.websiteService.updatePage(page).subscribe({
+          error: (updateError) => {
+              console.error("Falha ao atualizar status de monitoramento:", updateError);
+          }
+      });
+  }
+  }
+  private updateWebsiteIfNeeded(error: boolean): void {
+    if (this.website != null) {
+        this.websiteService.updateWebsite(this.website).subscribe({
+            error: (updateError) => {
+                console.error("Falha ao atualizar status de monitoramento:", updateError);
+            }
+        });
     }
   }
 
+  getAccessibilityErrors(reports: any, page: WebsitePage) {
+    let accessibilityErrors = {
+      A: 0,
+      AA: 0,
+      AAA: 0,
+    };
+
+    let actRulesAssertions = reports[page.url].modules["act-rules"].assertions;
+
+    for (const rule in actRulesAssertions) {
+      const assertion = actRulesAssertions[rule];
+      if (assertion.metadata["outcome"] === "failed") {
+        for (const criterion of assertion.metadata["success-criteria"]) {
+          if (criterion.level === "A") {
+            accessibilityErrors.A += assertion.metadata["failed"];
+          } else if (criterion.level === "AA") {
+            accessibilityErrors.AA += assertion.metadata["failed"];
+          } else if (criterion.level === "AAA") {
+            accessibilityErrors.AAA += assertion.metadata["failed"];
+          }
+        }
+      }
+    }
+    return accessibilityErrors;
+  }
   deletePage(): void {
     let page: WebsitePage;
     for(page of this.selectedPages){

@@ -1,5 +1,6 @@
 const Website = require("../models/Website");
 const WebsitePage = require("../models/WebsitePage")
+const Report = require("../models/Report")
 const asyncHandler = require("express-async-handler");
 const { ObjectId } = require("mongodb");
 // importar avaliador do pacote
@@ -39,118 +40,12 @@ exports.evaluate_page = asyncHandler(async (req, res, next) => {
     // executar a avaliação, recebendo o relatório
     report = await qualweb.evaluate(qualwebOptions);
 
-    // parar o avaliador
-    await qualweb.stop();
-  } catch (error) {
-    console.log("123")
-    const updatePage = await WebsitePage.findOneAndUpdate({_id: req.body.id}, {monitoringStatus: "Erro na avaliação"});
-    res.status(500).json({message: "Erro na avaliação"});
-    return
-  }
-
-  try {
-    var failedA = false
-    var failedAA = false 
-    var failedAAA = false
-    var failedTests = []
-    const commonErrors = new Map()
-    //console.log(report[req.body.url]['modules']['wcag-techniques']['assertions'])
-    for(let assertion of Object.keys(report[req.body.url]['modules']['act-rules']['assertions'])) {
-      for(let element of Object.keys(report[req.body.url]['modules']['act-rules']['assertions'][assertion]['metadata'])){
-        if(Object.keys(report[req.body.url]['modules']['act-rules']['assertions'][assertion]['metadata'][element]['failed'] > 0)) {
-          if(assertion in commonErrors){
-            commonErrors[assertion] = (parseInt(commonErrors[assertion]) + 1).toString()
-          }
-          else {
-            commonErrors[assertion] = '1'
-          }
-          for(let criteria of Object.keys(report[req.body.url]['modules']['act-rules']['assertions'][assertion]['metadata'][element])){
-            if(Object.keys(report[req.body.url]['modules']['act-rules']['assertions'][assertion]['metadata'][element][criteria]['level'] == 'A')){
-              failedA = true
-            }
-            if(Object.keys(report[req.body.url]['modules']['act-rules']['assertions'][assertion]['metadata'][element][criteria]['level'] == 'AA')){
-              failedAA = true
-            }
-            if(Object.keys(report[req.body.url]['modules']['act-rules']['assertions'][assertion]['metadata'][element][criteria]['level'] == 'AAA')){
-              failedAAA = true
-            }
-          }
-        }
-      }
-
-
-      /* for(let result of Object.keys(report[req.body.url]['modules']['act-rules']['assertions'][assertion]['results'])){
-        if(Object.keys(report[req.body.url]['modules']['act-rules']['assertions'][assertion]['results'][result]['verdict'] == 'failed')){
-
-        //TODO CONSIDERAR COMO PAGINA C ERRO
-        }
-          
-      } */
-    }
-
-    
-    for(let assertion of Object.keys(report[req.body.url]['modules']['wcag-techniques']['assertions'])) {
-      for(let element of Object.keys(report[req.body.url]['modules']['wcag-techniques']['assertions'][assertion]['metadata'])){
-        if(Object.keys(report[req.body.url]['modules']['wcag-techniques']['assertions'][assertion]['metadata'][element]['failed'] > 0)) {
-          if(assertion in commonErrors){
-            commonErrors[assertion] = (parseInt(commonErrors[assertion]) + 1).toString()
-          }
-          else {
-            commonErrors[assertion] = '1'
-          }
-          for(let criteria of Object.keys(report[req.body.url]['modules']['wcag-techniques']['assertions'][assertion]['metadata'][element])){
-            if(Object.keys(report[req.body.url]['modules']['wcag-techniques']['assertions'][assertion]['metadata'][element][criteria]['level'] == 'A')){
-              failedA = true
-            }
-            if(Object.keys(report[req.body.url]['modules']['wcag-techniques']['assertions'][assertion]['metadata'][element][criteria]['level'] == 'AA')){
-              failedAA = true
-            }
-            if(Object.keys(report[req.body.url]['modules']['wcag-techniques']['assertions'][assertion]['metadata'][element][criteria]['level'] == 'AAA')){
-              failedAAA = true
-            }
-          }
-        }
-      }
-
-      /* for(let result of Object.keys(report[req.body.url]['modules']['act-rules']['assertions'][assertion]['results'])){
-        if(Object.keys(report[req.body.url]['modules']['act-rules']['assertions'][assertion]['results'][result]['verdict'] == 'failed')){
-
-        //TODO CONSIDERAR COMO PAGINA C ERRO
-        }
-          
-      } */
-    }
-    
-
-    failedTests = [failedA, failedAA, failedAAA]
-    
-    let entries = Object.entries(commonErrors);
-
-    entries.sort((a, b) => b[1] - a[1]);
-    
-    let sortedCommonErrors = Object.fromEntries(entries);
-
-    // enviar se o pagina tem erro
-    // enviar se tem erros A AA AAA para WebsitePage
-    // enviar top 10 erros guardar no mapa
-
-    const date = report[req.body.url]['system']['date'] // guardar esta data na DB
-    console.log("----------------")
-    console.log(req.body.id)
-    console.log(date)
-    console.log(sortedCommonErrors)
-    
-    // atualizar pagina
-    let estado = "Conforme"
-    if(failedTests[0] || failedTests[1])
-      estado = "Não conforme"
-    const updatePage = await WebsitePage.findOneAndUpdate({_id: req.body.id}, {monitoringStatus: estado, lastEvaluationDate: date, errorsType: failedTests, commonErrors: sortedCommonErrors});
-
-    if (!updatePage) {
-        return res.status(404).json({ message: 'Website não encontrado' });
-    }
-
-    res.status(201).json(updatePage);
+      // parar o avaliador
+      await qualweb.stop();
+      
+      //console.log( Object.keys(report[req.body.url]));
+      //console.log(report[req.body.url]['modules']['act-rules'])
+      res.status(201).json(report);
   } catch (error) {
       res.status(500).json({ message: "erro", error: error.message });
   }
@@ -185,6 +80,22 @@ exports.page_regist = asyncHandler(async (req, res, next) => {
   }
 });
 
+exports.report_regist = asyncHandler(async (req, res, next) => {
+
+  try {
+      const newReport = await Report.create({ 
+        metadata: req.body.metadata,
+        modules: req.body.modules
+      });
+
+      res.status(201).json(newReport);
+
+  } catch (error) {
+      res.status(500).json({ message: "Falha ao registar o report", error: error.message });
+  }
+});
+
+
 exports.website_list = asyncHandler(async (req, res, next) => {
   try {
     const list_websites = await Website.find({}, "_id url monitoringStatus registrationDate lastEvaluationDate pages");
@@ -195,7 +106,7 @@ exports.website_list = asyncHandler(async (req, res, next) => {
         url: website.url, 
         monitoringStatus: website.monitoringStatus, 
         registrationDate: website.registrationDate, 
-        lastEvaluationDate: website.last, 
+        lastEvaluationDate: website.lastEvaluationDate, 
         pages: pages
       };
     }));
@@ -235,8 +146,8 @@ exports.page_list = asyncHandler(async (req, res, next) => {
 exports.website_update = asyncHandler(async (req, res, next) => { 
     //console.log(req.body);
     const websiteId = req.params._id;
-    const {pages } = req.body;
-
+    const {pages, monitoringStatus, lastEvaluationDate } = req.body;
+      
     const updatedPages = pages.map(page => {
         if (!page._id) {
             page._id = page.id;
@@ -251,17 +162,33 @@ exports.website_update = asyncHandler(async (req, res, next) => {
     });
     
     try {
-       const updatePage = await Website.findOneAndUpdate({_id: websiteId}, {pages: pages});
-
-       if (!updatePage) {
+       const updateWebsite = await Website.findOneAndUpdate({_id: websiteId}, {pages: pages, monitoringStatus: monitoringStatus, lastEvaluationDate: lastEvaluationDate});
+       if (!updateWebsite) {
           return res.status(404).json({ message: 'Website não encontrado' });
        }
 
-       res.json(updatePage);
+       res.json(updateWebsite);
 
     } catch (error) {
       res.status(500).json({ message: "Falha ao atualizar o website", error: error.message });
     }
+});
+exports.page_update = asyncHandler(async (req, res, next) => { 
+  const pageId = req.params._id;
+  const {monitoringStatus, lastEvaluationDate } = req.body;
+  
+  try {
+     const updatePage = await WebsitePage.findOneAndUpdate({_id: pageId}, {monitoringStatus: monitoringStatus, lastEvaluationDate: lastEvaluationDate});
+
+     if (!updatePage) {
+        return res.status(404).json({ message: 'Página não encontrada' });
+     }
+
+     res.json(updatePage);
+
+  } catch (error) {
+    res.status(500).json({ message: "Falha ao atualizar a página", error: error.message });
+  }
 });
 
 exports.website_detail = asyncHandler(async (req, res, next) => {
