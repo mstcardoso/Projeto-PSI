@@ -92,7 +92,7 @@ exports.website_list = asyncHandler(async (req, res, next) => {
         url: website.url, 
         monitoringStatus: website.monitoringStatus, 
         registrationDate: website.registrationDate, 
-        lastEvaluationDate: website.last, 
+        lastEvaluationDate: website.lastEvaluationDate, 
         pages: pages
       };
     }));
@@ -132,8 +132,8 @@ exports.page_list = asyncHandler(async (req, res, next) => {
 exports.website_update = asyncHandler(async (req, res, next) => { 
     console.log(req.body);
     const websiteId = req.params._id;
-    const {pages, monitoringStatus } = req.body;
-
+    const {pages, monitoringStatus, lastEvaluationDate } = req.body;
+      
     const updatedPages = pages.map(page => {
         if (!page._id) {
             page._id = page.id;
@@ -148,17 +148,33 @@ exports.website_update = asyncHandler(async (req, res, next) => {
     });
     
     try {
-       const updatePage = await Website.findOneAndUpdate({_id: websiteId}, {pages: pages, monitoringStatus: monitoringStatus});
-
-       if (!updatePage) {
+       const updateWebsite = await Website.findOneAndUpdate({_id: websiteId}, {pages: pages, monitoringStatus: monitoringStatus, lastEvaluationDate: lastEvaluationDate});
+       if (!updateWebsite) {
           return res.status(404).json({ message: 'Website não encontrado' });
        }
 
-       res.json(updatePage);
+       res.json(updateWebsite);
 
     } catch (error) {
       res.status(500).json({ message: "Falha ao atualizar o website", error: error.message });
     }
+});
+exports.page_update = asyncHandler(async (req, res, next) => { 
+  const pageId = req.params._id;
+  const {monitoringStatus, lastEvaluationDate } = req.body;
+  
+  try {
+     const updatePage = await WebsitePage.findOneAndUpdate({_id: pageId}, {monitoringStatus: monitoringStatus, lastEvaluationDate: lastEvaluationDate});
+
+     if (!updatePage) {
+        return res.status(404).json({ message: 'Página não encontrada' });
+     }
+
+     res.json(updatePage);
+
+  } catch (error) {
+    res.status(500).json({ message: "Falha ao atualizar a página", error: error.message });
+  }
 });
 
 exports.website_detail = asyncHandler(async (req, res, next) => {

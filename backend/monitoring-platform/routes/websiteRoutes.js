@@ -11,6 +11,8 @@ router.get('/website/:_id', websiteController.website_detail);
 
 router.put('/website/:_id', websiteController.website_update)
 
+router.put('/page/:_id', websiteController.page_update)
+
 router.post('/page', websiteController.page_regist);
 
 router.get('/pages', websiteController.page_list);
