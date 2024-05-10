@@ -78,8 +78,16 @@ export class WebsiteService {
   updateWebsite(website: Website): Observable<string> {
     const url = `${this.websiteUrl}/${website.id}`;
     return this.http.put(url, website, this.httpOptions).pipe(
-      map(() => 'Página adicionada com sucesso'),
-      catchError(() => of('Falha ao adicionar página'))
+      map(() => 'Website actualizada com sucesso'),
+      catchError(() => of('Falha ao actualizar website'))
+    );
+  }
+
+  updatePage(page: WebsitePage): Observable<string> {
+    const url = `${this.pageUrl}/${page._id}`;
+    return this.http.put(url, page, this.httpOptions).pipe(
+      map(() => 'Página actualizada com sucesso'),
+      catchError(() => of('Falha ao actualizar página'))
     );
   }
 
