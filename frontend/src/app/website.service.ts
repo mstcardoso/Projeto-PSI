@@ -14,7 +14,6 @@ export class WebsiteService {
   private pagesUrl = 'http://localhost:3090/api/pages'; 
   private websiteUrl = 'http://localhost:3090/api/website'; 
   private pageUrl = 'http://localhost:3090/api/page';
-  private reportUrl = 'http://localhost:3090/api/report';
 
   
   httpOptions = {
@@ -40,13 +39,6 @@ export class WebsiteService {
   addPage(page: string): Observable<WebsitePage>  {
     return this.http.post<WebsitePage>(this.pageUrl, {url: page}, this.httpOptions).pipe(
       catchError(this.handleError<WebsitePage>('addPage'))
-    );
-  }
-
-  addReport(report: any): Observable<any> {
-    console.log("REPORTTTTTTTTT")
-    return this.http.post<any>(this.reportUrl, report, this.httpOptions).pipe(
-      catchError(this.handleError<WebsitePage>('addReport'))
     );
   }
 

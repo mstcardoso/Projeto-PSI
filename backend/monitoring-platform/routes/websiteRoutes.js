@@ -25,6 +25,4 @@ router.delete("/page/:_id", websiteController.page_delete_get);
 
 router.post("/page/evaluate", websiteController.evaluate_page);
 
-router.post('/report', websiteController.report_regist);
-
 module.exports = router;

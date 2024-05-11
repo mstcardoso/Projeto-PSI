@@ -1,13 +1,12 @@
 const Website = require("../models/Website");
 const WebsitePage = require("../models/WebsitePage")
-const Report = require("../models/Report")
 const asyncHandler = require("express-async-handler");
 const { ObjectId } = require("mongodb");
 // importar avaliador do pacote
 const { QualWeb } = require('@qualweb/core');
 
 
-// o avaliador usa instâncias do browser cccccccccccccChrome para executar a avaliação
+// o avaliador usa instâncias do browser Chrome para executar a avaliação
 // definir as diferentes opções a usar
 // plugins para bloquear anúncios e para que não seja detectado que o browser que está a ser usado em modo automático
 const plugins = {
@@ -80,22 +79,6 @@ exports.page_regist = asyncHandler(async (req, res, next) => {
   }
 });
 
-exports.report_regist = asyncHandler(async (req, res, next) => {
-
-  try {
-      const newReport = await Report.create({ 
-        metadata: req.body.metadata,
-        modules: req.body.modules
-      });
-
-      res.status(201).json(newReport);
-
-  } catch (error) {
-      res.status(500).json({ message: "Falha ao registar o report", error: error.message });
-  }
-});
-
-
 exports.website_list = asyncHandler(async (req, res, next) => {
   try {
     const list_websites = await Website.find({}, "_id url monitoringStatus registrationDate lastEvaluationDate pages");
@@ -131,9 +114,21 @@ const getPageList = async (pageIds) => {
 
 exports.page_list = asyncHandler(async (req, res, next) => {
   try {
-    const list_pages = await WebsitePage.find({}, "_id url monitoringStatus");
+    const list_pages = await WebsitePage.find({}, "_id url monitoringStatus commonErrors");
     const formattedPages = list_pages.map((page) => {
-      return { id: page._id.toString(), url: page.url, monitoringStatus: page.monitoringStatus};
+      const commonErrorsObject = {};
+      if (page.commonErrors) {
+        page.commonErrors.forEach((value, key) => {
+          commonErrorsObject[key] = value;
+        });
+      }
+
+      return { 
+        id: page._id.toString(), 
+        url: page.url, 
+        monitoringStatus: page.monitoringStatus, 
+        commonErrors: commonErrorsObject 
+      };
     });
     res.json(formattedPages);
   } catch (err) {
@@ -173,21 +168,26 @@ exports.website_update = asyncHandler(async (req, res, next) => {
       res.status(500).json({ message: "Falha ao atualizar o website", error: error.message });
     }
 });
-exports.page_update = asyncHandler(async (req, res, next) => { 
+
+exports.page_update = asyncHandler(async (req, res, next) => {
   const pageId = req.params._id;
-  const {monitoringStatus, lastEvaluationDate } = req.body;
-  
+
   try {
-     const updatePage = await WebsitePage.findOneAndUpdate({_id: pageId}, {monitoringStatus: monitoringStatus, lastEvaluationDate: lastEvaluationDate});
+      const updateFields = { ...req.body, commonErrors: Object.fromEntries(req.body.commonErrors)};
 
-     if (!updatePage) {
-        return res.status(404).json({ message: 'Página não encontrada' });
-     }
+      const updatePage = await WebsitePage.findOneAndUpdate(
+          { _id: pageId },
+          updateFields,
+          { new: true }
+      );
 
-     res.json(updatePage);
+      if (!updatePage) {
+          return res.status(404).json({ message: 'Página não encontrada' });
+      }
 
+      res.json(updatePage);
   } catch (error) {
-    res.status(500).json({ message: "Falha ao atualizar a página", error: error.message });
+      res.status(500).json({ message: "Falha ao atualizar a página", error: error.message });
   }
 });
 

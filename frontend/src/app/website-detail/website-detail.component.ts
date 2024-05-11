@@ -41,6 +41,9 @@ export class WebsiteDetailComponent implements OnInit {
         this.website = website;
         if (this.website != undefined) {
             this.pages = this.website.pages;
+            this.pages.forEach(element => {
+              console.log(element.commonErrors);
+            });
         }
     });
   }
@@ -64,39 +67,76 @@ export class WebsiteDetailComponent implements OnInit {
                 let completedCount = 0;
 
                 for (const page of this.selectedPages) {
-                  this.updatePage(page, "Em avaliação");
-                    this.websiteService.evaluatePage(page.url).subscribe({
-                        next: (earlReport) => {
-                            if ((!earlReport || Object.keys(earlReport).length === 0 || earlReport.message == "erro") && this.website != null) {
-                              error = true;
-                              this.website.monitoringStatus = "Erro na avaliação";
-                              this.website.lastEvaluationDate = new Date();
-                              page.lastEvaluationDate = new Date();
-                              this.updatePage(page, "Erro na avaliação");
-                              this.updateWebsiteIfNeeded(error);
+                  page.monitoringStatus = "Em avaliação";
+                  this.updatePage(page);
+                  this.websiteService.evaluatePage(page.url).subscribe({
+                    next: (earlReport) => {
+                        let error = false;
+                        let completedCount = 0;
+                
+                        if ((!earlReport || Object.keys(earlReport).length === 0 || earlReport.message == "erro") && this.website != null) {
+                            error = true;
+                            this.website.monitoringStatus = "Erro na avaliação";
+                            this.website.lastEvaluationDate = new Date();
+                            page.monitoringStatus = "Erro na avaliação";
+                            this.updatePage(page);
+                            this.updateWebsiteIfNeeded(error);
+                        } else {  
+                            const accessibilityErrors = this.getAccessibilityErrors(earlReport, page);
+                            page.errorTypes = [accessibilityErrors.A != 0, accessibilityErrors.AA != 0, accessibilityErrors.AAA != 0]
+                            if (accessibilityErrors.A == 0 && accessibilityErrors.AA == 0) {
+                                page.monitoringStatus = "Conforme";
+                                this.updatePage(page);
                             } else {
-                              
-                              const accessibilityErrors = this.getAccessibilityErrors(earlReport, page);
-
-                              if (accessibilityErrors.A == 0 && accessibilityErrors.AA == 0) {
-                                this.updatePage(page, "Conforme");
-                              } else {
-                                this.updatePage(page, "Não conforme");
-                                console.log(earlReport);
-                              }
-                            
-                              this.earlList.push(earlReport);
+                                page.monitoringStatus = "Não conforme";
+                                this.updatePage(page);
                             }
-                            completedCount++;
-                            if (completedCount === this.selectedPages.length && !error && this.website != null) {
-                              this.website.monitoringStatus = "Avaliado";
-                              this.website.lastEvaluationDate = new Date();
-                              this.updateWebsiteIfNeeded(error);
-                              console.log(earlReport);
-                            }
-                            this.websiteService.addReport(earlReport);
+                
+                            this.earlList.push(earlReport);
                         }
-                    });
+                
+                        completedCount++;
+                        if (completedCount === this.selectedPages.length && !error && this.website != null) {
+                            this.website.monitoringStatus = "Avaliado";
+                            this.website.lastEvaluationDate = new Date();
+                            this.updateWebsiteIfNeeded(error);
+                        }
+                
+                        try {
+                            const commonErrors: Map<string, string> = new Map<string, string>();
+                            for (let assertion of Object.keys(earlReport[page.url]['modules']['act-rules']['assertions'])) {
+                              if (earlReport[page.url]['modules']['act-rules']['assertions'][assertion]['metadata']['failed'] > 0) {
+                                const existingValue = commonErrors.get(assertion);
+                                if (assertion in commonErrors && existingValue != undefined) {
+                                  commonErrors.set(assertion, (parseInt(existingValue + 1).toString()));
+                                } else {
+                                  commonErrors.set(assertion, '1');
+                                }
+                              }
+                            }
+                
+                            for (let assertion of Object.keys(earlReport[page.url]['modules']['wcag-techniques']['assertions'])) {
+                              if ((earlReport[page.url]['modules']['wcag-techniques']['assertions'][assertion]['metadata']['failed']) > 0) {
+                                const existingValue = commonErrors.get(assertion);
+                                if (assertion in commonErrors && existingValue != undefined) {
+                                  commonErrors.set(assertion, (parseInt(existingValue + 1).toString()));
+                                } else {
+                                  commonErrors.set(assertion, '1');
+                                }
+                              }
+                            }
+                
+                            let sortedCommonErrorsMap = new Map<string, string>(commonErrors);
+                            page.commonErrors = sortedCommonErrorsMap;
+                            this.updatePage(page);
+                        } catch (error) {
+                            console.error("Error:", error);
+                        }
+                    },
+                    error: (err) => {
+                        console.error("Error evaluating page:", err);
+                    }
+                });
                 }
             },
             error: (error) => {
@@ -105,17 +145,18 @@ export class WebsiteDetailComponent implements OnInit {
         });
     }
   } 
-  private updatePage(page: WebsitePage, status: string) {
+  
+  private updatePage(page: WebsitePage) {
     if (page != null) {
-      page.monitoringStatus = status;
       page.lastEvaluationDate = new Date();
       this.websiteService.updatePage(page).subscribe({
           error: (updateError) => {
               console.error("Falha ao atualizar status de monitoramento:", updateError);
           }
       });
+    }
   }
-  }
+
   private updateWebsiteIfNeeded(error: boolean): void {
     if (this.website != null) {
         this.websiteService.updateWebsite(this.website).subscribe({
@@ -236,6 +277,8 @@ export class WebsiteDetailComponent implements OnInit {
                             this.resultMessage = response;
                           });
                       }
+                      this.pages.push(webPage);
+                      this.pages = this.pages;
                       this.getWebsite();
                     });
                 }
