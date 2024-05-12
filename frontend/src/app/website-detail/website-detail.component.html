@@ -43,15 +43,14 @@
     
     <div class="details-container">
       <div class="details">
-        <h2>Erros comuns de {{ website.url }}</h2>
+        <h2>Erros comuns de {{ website.url }} </h2>
         <div>
-          <span> <button type="button" class="bold-text"> Erros comuns:</button> </span> 
+          <span tabindex="0"> <button type="button" class="bold-text"> Erros comuns:</button> </span>
           <ul>
             <li *ngFor="let error of commonErrors()">
               <span [style.font-weight]="'bold'">{{ error.split(':')[0] }}:</span> {{ error.split(':')[1] }}
             </li>
           </ul>
-          
         </div>
       </div>
     </div>
