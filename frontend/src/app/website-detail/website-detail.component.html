@@ -19,6 +19,30 @@
     </div>
   </div>
   
+  <div class="details-container">
+    <div class="details">
+      <h2>Estatísticas de {{ website.url }}</h2>
+      <div>
+        <span class="bold-text">Páginas sem erros:</span> {{ pagesWithNoErrors() }} ({{ (pagesWithNoErrors()/website.pages.length*100).toFixed(2) }}%)
+      </div>
+      <div>
+        <span class="bold-text">Páginas com erros:</span> {{ pagesWithErrors() }} ({{ (pagesWithErrors()/website.pages.length*100).toFixed(2) }}%)
+      </div>
+      <div>
+        <span class="bold-text">Páginas com erros A:</span> {{ errorsAAAAAA(0) }} ({{ (errorsAAAAAA(0)/website.pages.length*100).toFixed(2) }}%)
+      </div>
+      <div>
+        <span class="bold-text">Páginas com erros AA: </span> {{ errorsAAAAAA(1) }} ({{ (errorsAAAAAA(1)/website.pages.length*100).toFixed(2) }}%)
+      </div>
+      <div>
+        <span class="bold-text">Páginas com erros AAA: </span> {{ errorsAAAAAA(2) }} ({{ (errorsAAAAAA(2)/website.pages.length*100).toFixed(2) }}%)
+      </div>
+      <div>
+        <span class="bold-text">Erros comuns: </span>
+      </div>
+    </div>
+  </div>
+  
   <hr>
   <div class="new-page">
     <input id="new-page" #pageUrl placeholder="Adicionar uma nova página" />

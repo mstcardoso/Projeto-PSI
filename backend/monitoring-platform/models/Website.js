@@ -8,7 +8,6 @@ const WebsiteSchema = new Schema({
     registrationDate: { type: Date, required: true },
     lastEvaluationDate: { type: Date},
     pages: { type: [Schema.Types.ObjectId], ref: "WebsitePage", required: true},
-    commonErrors: { type: Map, of: String, required: false },   
 });
 
 module.exports = mongoose.model("Website", WebsiteSchema);

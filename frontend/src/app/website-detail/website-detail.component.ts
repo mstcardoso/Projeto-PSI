@@ -112,7 +112,7 @@ export class WebsiteDetailComponent implements OnInit {
                 
                             for (let assertion of Object.keys(earlReport[page.url]['modules']['wcag-techniques']['assertions'])) {
                               if ((earlReport[page.url]['modules']['wcag-techniques']['assertions'][assertion]['metadata']['failed']) > 0) {
-                                commonErrors.push(assertion + ": " + earlReport[page.url]['modules']['act-rules']['assertions'][assertion]['description']);
+                                commonErrors.push(assertion + ": " + earlReport[page.url]['modules']['wcag-techniques']['assertions'][assertion]['description']);
                               }
                             }
                 
@@ -299,6 +299,39 @@ export class WebsiteDetailComponent implements OnInit {
       }
       //window.location.reload();
     });
+  }
+
+  pagesWithNoErrors(): number {
+    let result = 0
+    let page: WebsitePage
+    for(page of this.pages){
+      if(page.commonErrors && page.commonErrors.length == 0 && page.monitoringStatus == "Conforme"){
+          result++
+      }
+    }
+    return result
+  }
+
+  pagesWithErrors(): number {
+    let result = 0
+    let page: WebsitePage
+    for(page of this.pages){
+      if(page.commonErrors && page.commonErrors.length > 0){
+          result++
+      }
+    }
+    return result
+  }
+
+  errorsAAAAAA(type: number): number {
+    let result = 0
+    let page: WebsitePage
+    for(page of this.pages){
+      if(page.errorTypes && page.errorTypes[type]){
+          result++
+      }
+    }
+    return result
   }
 }
 
