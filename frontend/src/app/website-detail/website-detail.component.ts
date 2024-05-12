@@ -69,7 +69,7 @@ export class WebsiteDetailComponent implements OnInit {
                   this.websiteService.evaluatePage(page.url).subscribe({
                     next: (earlReport) => {
                         let error = false;
-                        let completedCount = 0;
+                        
                         if ((!earlReport || Object.keys(earlReport).length === 0 || earlReport.message == "erro") && this.website != null) {
                             error = true;
                             this.website.monitoringStatus = "Erro na avaliação";
@@ -93,9 +93,17 @@ export class WebsiteDetailComponent implements OnInit {
                 
                         completedCount++;
                         if (completedCount === this.selectedPages.length && !error && this.website != null) {
-                            this.website.monitoringStatus = "Avaliado";
+                          let count = 0;
+                          for(const page of this.website.pages) {
+                            if(page.monitoringStatus == "Não conforme" || page.monitoringStatus == "Conforme")
+                              count ++;
+                          }
+                          if(count == this.website.pages.length) {
                             this.website.lastEvaluationDate = new Date();
+                            this.website.monitoringStatus = "Avaliado";
                             this.updateWebsiteIfNeeded(error);
+                            console.log(earlReport.report);
+                          }
                         }
                 
                         try {

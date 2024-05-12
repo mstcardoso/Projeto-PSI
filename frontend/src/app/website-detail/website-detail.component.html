@@ -46,8 +46,12 @@
         <h2>Erros comuns de {{ website.url }}</h2>
         <div>
           <span> <button type="button" class="bold-text"> Erros comuns:</button> </span> 
-          <ul> <span *ngFor="let error of commonErrors()"><li><span class="bold-text">{{ error.split(':')[0] }}:</span> {{ error.split(':')[1] }}</li>
-          </span> </ul>
+          <ul>
+            <li *ngFor="let error of commonErrors()">
+              <span [style.font-weight]="'bold'">{{ error.split(':')[0] }}:</span> {{ error.split(':')[1] }}
+            </li>
+          </ul>
+          
         </div>
       </div>
     </div>
@@ -61,8 +65,9 @@
     </button>
   </div>
   <div class="result-container">
-    <div *ngIf="resultMessage" class="result-message">{{ resultMessage }}</div>
+    <div *ngIf="resultMessage"  class="bold-text">{{ resultMessage }}</div>
   </div>
+  
 
   <hr>
   
