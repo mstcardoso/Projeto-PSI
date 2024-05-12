@@ -73,7 +73,7 @@ export class WebsiteDetailComponent implements OnInit {
                     next: (earlReport) => {
                         let error = false;
                         let completedCount = 0;
-                
+                        console.log(earlReport)
                         if ((!earlReport || Object.keys(earlReport).length === 0 || earlReport.message == "erro") && this.website != null) {
                             error = true;
                             this.website.monitoringStatus = "Erro na avaliação";
@@ -103,31 +103,20 @@ export class WebsiteDetailComponent implements OnInit {
                         }
                 
                         try {
-                            const commonErrors: Map<string, string> = new Map<string, string>();
+                            var commonErrors: string[] = [];
                             for (let assertion of Object.keys(earlReport[page.url]['modules']['act-rules']['assertions'])) {
                               if (earlReport[page.url]['modules']['act-rules']['assertions'][assertion]['metadata']['failed'] > 0) {
-                                const existingValue = commonErrors.get(assertion);
-                                if (assertion in commonErrors && existingValue != undefined) {
-                                  commonErrors.set(assertion, (parseInt(existingValue + 1).toString()));
-                                } else {
-                                  commonErrors.set(assertion, '1');
-                                }
+                                commonErrors.push(assertion + ": " + earlReport[page.url]['modules']['act-rules']['assertions'][assertion]['description']);
                               }
                             }
                 
                             for (let assertion of Object.keys(earlReport[page.url]['modules']['wcag-techniques']['assertions'])) {
                               if ((earlReport[page.url]['modules']['wcag-techniques']['assertions'][assertion]['metadata']['failed']) > 0) {
-                                const existingValue = commonErrors.get(assertion);
-                                if (assertion in commonErrors && existingValue != undefined) {
-                                  commonErrors.set(assertion, (parseInt(existingValue + 1).toString()));
-                                } else {
-                                  commonErrors.set(assertion, '1');
-                                }
+                                commonErrors.push(assertion + ": " + earlReport[page.url]['modules']['act-rules']['assertions'][assertion]['description']);
                               }
                             }
                 
-                            let sortedCommonErrorsMap = new Map<string, string>(commonErrors);
-                            page.commonErrors = sortedCommonErrorsMap;
+                            page.commonErrors = commonErrors;
                             this.updatePage(page);
                         } catch (error) {
                             console.error("Error:", error);

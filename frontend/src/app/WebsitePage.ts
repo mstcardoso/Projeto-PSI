@@ -5,5 +5,5 @@ export interface  WebsitePage {
     lastEvaluationDate?: Date;
     monitoringStatus: string;
     errorTypes?: boolean[];
-    commonErrors?: Map<string, string>;
+    commonErrors?: string[];
 }

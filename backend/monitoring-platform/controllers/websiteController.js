@@ -39,12 +39,10 @@ exports.evaluate_page = asyncHandler(async (req, res, next) => {
     // executar a avaliação, recebendo o relatório
     report = await qualweb.evaluate(qualwebOptions);
 
-      // parar o avaliador
-      await qualweb.stop();
-      
-      //console.log( Object.keys(report[req.body.url]));
-      //console.log(report[req.body.url]['modules']['act-rules'])
-      res.status(201).json(report);
+    // parar o avaliador
+    await qualweb.stop();
+    
+    res.status(201).json(report);
   } catch (error) {
       res.status(500).json({ message: "erro", error: error.message });
   }
@@ -139,7 +137,6 @@ exports.page_list = asyncHandler(async (req, res, next) => {
 
 
 exports.website_update = asyncHandler(async (req, res, next) => { 
-    //console.log(req.body);
     const websiteId = req.params._id;
     const {pages, monitoringStatus, lastEvaluationDate } = req.body;
       
@@ -173,7 +170,7 @@ exports.page_update = asyncHandler(async (req, res, next) => {
   const pageId = req.params._id;
 
   try {
-      const updateFields = { ...req.body, commonErrors: Object.fromEntries(req.body.commonErrors)};
+      let updateFields = { ...req.body };
 
       const updatePage = await WebsitePage.findOneAndUpdate(
           { _id: pageId },
