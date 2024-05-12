@@ -43,7 +43,7 @@ app.use(function(err, req, res, next) {
 // Set up mongoose connection
 const mongoose = require("mongoose");
 mongoose.set("strictQuery", false);
-const mongoDB = "mongodb://psi040:psi040@localhost:27017/psi040?retryWrites=true&authSource=psi040";
+const mongoDB = "mongodb+srv://mstcardoso94:1D4694pTmQvTJICm@psi.ptobisv.mongodb.net/?retryWrites=true&w=majority&appName=psi";
 main().catch((err) => console.log(err));
 async function main() {
   await mongoose.connect(mongoDB);
