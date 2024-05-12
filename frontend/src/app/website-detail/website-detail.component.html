@@ -1,48 +1,57 @@
 <div *ngIf="website"> 
-  <div class="details-container">
-    <div class="details">
-      <h2>Detalhes de {{ website.url }}</h2>
-      <div>
-        <span class="bold-text">Id:</span> {{ website.id }}
+  <div class="flex-details-container">
+    <div class="details-container">
+      <div class="details">
+        <h2>Detalhes de {{ website.url }}</h2>
+        <div>
+          <span class="bold-text">Id:</span> {{ website.id }}
+        </div>
+        <div>
+          <span class="bold-text">Url:</span> {{ website.url }}
+        </div>
+        <div>
+          <span class="bold-text">Data de Registro:</span> {{ website.registrationDate | date:'dd/MM/yyyy HH:mm:ss' }}
+        </div>
+        <div>
+          <span class="bold-text">Última Avaliação: </span>
+          <ng-container *ngIf="website.lastEvaluationDate; else none">{{ website.lastEvaluationDate | date:'dd/MM/yyyy HH:mm:ss' }}</ng-container>
+          <ng-template #none>Sem Avaliações</ng-template>
+        </div>
       </div>
-      <div>
-        <span class="bold-text">Url:</span> {{ website.url }}
+    </div>
+    
+    <div class="details-container">
+      <div class="details">
+        <h2>Estatísticas de {{ website.url }}</h2>
+        <div>
+          <span class="bold-text">Páginas sem erros:</span> {{ pagesWithNoErrors() }} ({{ (pagesWithNoErrors()/website.pages.length*100).toFixed(2) }}%)
+        </div>
+        <div>
+          <span class="bold-text">Páginas com erros:</span> {{ pagesWithErrors() }} ({{ (pagesWithErrors()/website.pages.length*100).toFixed(2) }}%)
+        </div>
+        <div>
+          <span class="bold-text">Páginas com erros A:</span> {{ errorsAAAAAA(0) }} ({{ (errorsAAAAAA(0)/website.pages.length*100).toFixed(2) }}%)
+        </div>
+        <div>
+          <span class="bold-text">Páginas com erros AA: </span> {{ errorsAAAAAA(1) }} ({{ (errorsAAAAAA(1)/website.pages.length*100).toFixed(2) }}%)
+        </div>
+        <div>
+          <span class="bold-text">Páginas com erros AAA: </span> {{ errorsAAAAAA(2) }} ({{ (errorsAAAAAA(2)/website.pages.length*100).toFixed(2) }}%)
+        </div>
       </div>
-      <div>
-        <span class="bold-text">Data de Registro:</span> {{ website.registrationDate | date:'dd/MM/yyyy HH:mm:ss' }}
-      </div>
-      <div>
-        <span class="bold-text">Última Avaliação: </span>
-        <ng-container *ngIf="website.lastEvaluationDate; else none">{{ website.lastEvaluationDate | date:'dd/MM/yyyy HH:mm:ss' }}</ng-container>
-        <ng-template #none>Sem Avaliações</ng-template>
+    </div>
+    
+    <div class="details-container">
+      <div class="details">
+        <h2>Erros comuns de {{ website.url }}</h2>
+        <div>
+          <span> <button type="button" class="bold-text"> Erros comuns:</button> </span> 
+          <ul> <span *ngFor="let error of commonErrors()"><li>{{ error }}</li>
+          </span> </ul>
+        </div>
       </div>
     </div>
   </div>
-  
-  <div class="details-container">
-    <div class="details">
-      <h2>Estatísticas de {{ website.url }}</h2>
-      <div>
-        <span class="bold-text">Páginas sem erros:</span> {{ pagesWithNoErrors() }} ({{ (pagesWithNoErrors()/website.pages.length*100).toFixed(2) }}%)
-      </div>
-      <div>
-        <span class="bold-text">Páginas com erros:</span> {{ pagesWithErrors() }} ({{ (pagesWithErrors()/website.pages.length*100).toFixed(2) }}%)
-      </div>
-      <div>
-        <span class="bold-text">Páginas com erros A:</span> {{ errorsAAAAAA(0) }} ({{ (errorsAAAAAA(0)/website.pages.length*100).toFixed(2) }}%)
-      </div>
-      <div>
-        <span class="bold-text">Páginas com erros AA: </span> {{ errorsAAAAAA(1) }} ({{ (errorsAAAAAA(1)/website.pages.length*100).toFixed(2) }}%)
-      </div>
-      <div>
-        <span class="bold-text">Páginas com erros AAA: </span> {{ errorsAAAAAA(2) }} ({{ (errorsAAAAAA(2)/website.pages.length*100).toFixed(2) }}%)
-      </div>
-      <div>
-        <span class="bold-text">Erros comuns: </span>
-      </div>
-    </div>
-  </div>
-  
   <hr>
   <div class="new-page">
     <input id="new-page" #pageUrl placeholder="Adicionar uma nova página" />

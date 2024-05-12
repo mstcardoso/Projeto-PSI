@@ -41,9 +41,6 @@ export class WebsiteDetailComponent implements OnInit {
         this.website = website;
         if (this.website != undefined) {
             this.pages = this.website.pages;
-            this.pages.forEach(element => {
-              console.log(element.commonErrors);
-            });
         }
     });
   }
@@ -73,7 +70,6 @@ export class WebsiteDetailComponent implements OnInit {
                     next: (earlReport) => {
                         let error = false;
                         let completedCount = 0;
-                        console.log(earlReport)
                         if ((!earlReport || Object.keys(earlReport).length === 0 || earlReport.message == "erro") && this.website != null) {
                             error = true;
                             this.website.monitoringStatus = "Erro na avaliação";
@@ -332,6 +328,37 @@ export class WebsiteDetailComponent implements OnInit {
       }
     }
     return result
+  }
+
+  commonErrors(): string[] {
+    let errorMap = new Map()
+    let page: WebsitePage
+    for(page of this.pages) {
+      if(page.commonErrors){
+        let error = ""
+        for(error in page.commonErrors) {
+          if(errorMap.has(page.commonErrors[error])) {
+            errorMap.set(page.commonErrors[error], errorMap.get(page.commonErrors[error]) + 1)
+          }
+          else {
+            errorMap.set(page.commonErrors[error], 1)
+          }
+        }
+      }
+    }
+    
+    let keyValueArray = Array.from(errorMap);
+    keyValueArray.sort((a, b) => b[1] - a[1]);
+
+    let sortedMap = new Map(keyValueArray);
+    
+    let result = Array.from(sortedMap.keys())
+    //let result = Array.from(sortedMap.keys()).splice(0, 10).map(key => key.split(':')[0]);
+    return result
+  }
+
+  popUp(): void {
+
   }
 }
 
