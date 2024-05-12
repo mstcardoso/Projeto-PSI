@@ -46,7 +46,7 @@
         <h2>Erros comuns de {{ website.url }}</h2>
         <div>
           <span> <button type="button" class="bold-text"> Erros comuns:</button> </span> 
-          <ul> <span *ngFor="let error of commonErrors()"><li>{{ error }}</li>
+          <ul> <span *ngFor="let error of commonErrors()"><li><span class="bold-text">{{ error.split(':')[0] }}:</span> {{ error.split(':')[1] }}</li>
           </span> </ul>
         </div>
       </div>
