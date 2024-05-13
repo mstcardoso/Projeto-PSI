@@ -1,3 +1,4 @@
+const Report = require("./Report");
 const mongoose = require("mongoose");
 
 const Schema = mongoose.Schema;
@@ -8,6 +9,8 @@ const WebsitePageSchema = new Schema({
     monitoringStatus: { type: String, required: true },
     errorTypes: { type: [Boolean], required: false },
     commonErrors: { type: [String], required: false },
+    report: { type: Schema.Types.ObjectId, ref: "report"},
 });
 
-module.exports = mongoose.model("WebsitePage", WebsitePageSchema);
+const WebsitePage = mongoose.model('websitePage', WebsitePageSchema);
+module.exports = WebsitePage;

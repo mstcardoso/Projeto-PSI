@@ -1,5 +1,6 @@
 const Website = require("../models/Website");
 const WebsitePage = require("../models/WebsitePage");
+const mongoose = require("mongoose");
 const { ActRules, WcagTechniques, Report} = require("../models/Report");
 const asyncHandler = require("express-async-handler");
 const { ObjectId } = require("mongodb");
@@ -146,7 +147,7 @@ exports.page_list = asyncHandler(async (req, res, next) => {
         id: page._id.toString(), 
         url: page.url, 
         monitoringStatus: page.monitoringStatus, 
-        commonErrors: commonErrorsObject 
+        commonErrors: commonErrorsObject ,
       };
     });
     res.json(formattedPages);
@@ -192,10 +193,12 @@ exports.page_update = asyncHandler(async (req, res, next) => {
 
   try {
       let updateFields = { ...req.body };
+      // Remove o atributo "report" da página, se existir
+      const { report, ...updateFieldsWithoutReport } = updateFields;
 
       const updatePage = await WebsitePage.findOneAndUpdate(
           { _id: pageId },
-          updateFields,
+          updateFieldsWithoutReport,
           { new: true }
       );
 
@@ -209,7 +212,8 @@ exports.page_update = asyncHandler(async (req, res, next) => {
   }
 });
 
-exports.website_detail = asyncHandler(async (req, res, next) => {
+//Mandamos os detalhes sem o act_rules e wcag_techniques
+exports.website_sdetail = asyncHandler(async (req, res, next) => {
   try {
     const websiteId = req.params._id;
     if (!ObjectId.isValid(websiteId)) {
@@ -218,7 +222,14 @@ exports.website_detail = asyncHandler(async (req, res, next) => {
       return next(err);
     }
 
-    const website = await Website.findById(websiteId);
+    const website = await Website.findById(websiteId).populate({
+      path: 'pages',
+      populate: {
+        path: 'report',
+        select: '_id', 
+      }
+    });
+    
     if (!website) {
       const err = new Error("Website não encontrado");
       err.status = 404;
@@ -230,19 +241,34 @@ exports.website_detail = asyncHandler(async (req, res, next) => {
     return next(err);
   }
 });
-
+//Mandamos os detalhes com o act_rules e wcag_techniques - a ser usado para quando queremos todos os detalhes
 exports.website_detail = asyncHandler(async (req, res, next) => {
   try {
     const websiteId = req.params._id;
-    const website = await Website.findById(websiteId).populate('pages').exec();
+    const website = await Website.findById(websiteId)
+      .populate({
+        path: 'pages',
+        populate: {
+          path: 'report',
+          populate: [
+            { path: 'act_rules', model: ActRules },
+            { path: 'wcag_techniques', model: WcagTechniques }
+          ]
+        }
+      })
+      .exec();
+
     if (!website) {
       return res.status(404).json({ error: "Website não encontrado" });
     }
+
     res.json(website);
   } catch (error) {
+    console.error('Erro:', error); // Log do erro para depuração
     next(error);
   }
 });
+
 
 exports.website_delete_get = asyncHandler(async (req, res, next) => {
   try {
