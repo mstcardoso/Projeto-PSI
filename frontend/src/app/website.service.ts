@@ -10,10 +10,11 @@ import { WebsitePage } from './WebsitePage';
 })
 export class WebsiteService {
   
-  private websitesUrl = 'http://appserver.alunos.di.fc.ul.pt:3090/api/websites'; 
-  private pagesUrl = 'http://appserver.alunos.di.fc.ul.pt:3090/api/pages'; 
-  private websiteUrl = 'http://appserver.alunos.di.fc.ul.pt:3090/api/website'; 
-  private pageUrl = 'http://appserver.alunos.di.fc.ul.pt:3090/api/page';
+  private websitesUrl = 'http://localhost:3090/api/websites'; 
+  private pagesUrl = 'http://localhost:3090/api/pages'; 
+  private websiteUrl = 'http://localhost:3090/api/website'; 
+  private pageUrl = 'http://localhost:3090/api/page';
+  private reportUrl = 'http://localhost:3090/api/report';
 
   
   httpOptions = {
@@ -118,6 +119,38 @@ export class WebsiteService {
     );
   }
 
+  addReport(report: any): Observable<any> {
+    return this.http.post<Report>(this.reportUrl, {report: report}, this.httpOptions).pipe(
+        catchError(this.handleError<Website>('addReport'))
+      );
+  }
+
+  getReportById(id: string): Observable<any> {
+    const url = `${this.reportUrl}/${id}`;
+    return this.http.get<any>(url).pipe(
+      catchError(this.handleError<any>('getReportById'))
+    );
+  }
+
+  getWcagById(id: string): Observable<any> {
+    const url = `${this.reportUrl}/wcag-techniques/${id}`;
+    return this.http.get<any>(url).pipe(
+      catchError(this.handleError<any>('getWcagById'))
+    );
+  }
+
+  getActRulesById(id: string): Observable<any> {
+    const url = `${this.reportUrl}/act-rules/${id}`;
+    return this.http.get<any>(url).pipe(
+      catchError(this.handleError<any>('getActRulesById'))
+    );
+  }
+  deleteReport(id: string | undefined): Observable<string> {
+    const url = `${this.reportUrl}/${id}`;
+    return this.http.delete<any>(url).pipe(
+      catchError(this.handleError<any>('deleteReport'))
+    );
+  }
   private handleError<T>(operation = 'operation', result?: T) {
     return (error: any): Observable<T> => {
       console.error(error);

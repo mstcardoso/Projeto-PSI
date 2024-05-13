@@ -64,31 +64,43 @@ export class WebsiteDetailComponent implements OnInit {
                 let completedCount = 0;
 
                 for (const page of this.selectedPages) {
-                  page.monitoringStatus = "Em avaliação";
-                  this.updatePage(page);
+                  this.updatePage(page, "Em avaliação");
                   this.websiteService.evaluatePage(page.url).subscribe({
                     next: (earlReport) => {
                         let error = false;
                         
-                        if ((!earlReport || Object.keys(earlReport).length === 0 || earlReport.message == "erro") && this.website != null) {
+                        if ((!earlReport.report || Object.keys(earlReport.report).length === 0 || earlReport.message == "erro") && this.website != null) {
                             error = true;
                             this.website.monitoringStatus = "Erro na avaliação";
                             this.website.lastEvaluationDate = new Date();
-                            page.monitoringStatus = "Erro na avaliação";
-                            this.updatePage(page);
+                            this.updatePage(page, "Erro na avaliação");
                             this.updateWebsiteIfNeeded(error);
                         } else {  
-                            const accessibilityErrors = this.getAccessibilityErrors(earlReport, page);
+                            const accessibilityErrors = this.getAccessibilityErrors(earlReport.report, page);
                             page.errorTypes = [accessibilityErrors.A != 0, accessibilityErrors.AA != 0, accessibilityErrors.AAA != 0]
                             if (accessibilityErrors.A == 0 && accessibilityErrors.AA == 0) {
-                                page.monitoringStatus = "Conforme";
-                                this.updatePage(page);
+                              page.lastEvaluationDate = new Date();
+
+                              if(!page.report) {
+                                page.report = earlReport.reportModules;
+                              } else {
+                                this.websiteService.deleteReport(page.report._id).subscribe();
+                                page.report = earlReport.reportModules;
+                              }
+                              this.updatePage(page, "Conforme");
                             } else {
-                                page.monitoringStatus = "Não conforme";
-                                this.updatePage(page);
+                                page.lastEvaluationDate = new Date();
+                                if(!page.report) {
+                                  page.report = earlReport.reportModules;
+                                } else {
+                                  this.websiteService.deleteReport(page.report._id).subscribe();
+                                  page.report = earlReport.reportModules;
+                                  console.log("Report: "+page.report?.act_rules)
+                                }
+                                this.updatePage(page, "Não conforme");
                             }
                 
-                            this.earlList.push(earlReport);
+                            this.earlList.push(earlReport.report);
                         }
                 
                         completedCount++;
@@ -108,20 +120,20 @@ export class WebsiteDetailComponent implements OnInit {
                 
                         try {
                             var commonErrors: string[] = [];
-                            for (let assertion of Object.keys(earlReport[page.url]['modules']['act-rules']['assertions'])) {
-                              if (earlReport[page.url]['modules']['act-rules']['assertions'][assertion]['metadata']['failed'] > 0) {
-                                commonErrors.push(assertion + ": " + earlReport[page.url]['modules']['act-rules']['assertions'][assertion]['description']);
+                            for (let assertion of Object.keys(earlReport.report[page.url]['modules']['act-rules']['assertions'])) {
+                              if (earlReport.report[page.url]['modules']['act-rules']['assertions'][assertion]['metadata']['failed'] > 0) {
+                                commonErrors.push(assertion + ": " + earlReport.report[page.url]['modules']['act-rules']['assertions'][assertion]['description']);
                               }
                             }
                 
-                            for (let assertion of Object.keys(earlReport[page.url]['modules']['wcag-techniques']['assertions'])) {
-                              if ((earlReport[page.url]['modules']['wcag-techniques']['assertions'][assertion]['metadata']['failed']) > 0) {
-                                commonErrors.push(assertion + ": " + earlReport[page.url]['modules']['wcag-techniques']['assertions'][assertion]['description']);
+                            for (let assertion of Object.keys(earlReport.report[page.url]['modules']['wcag-techniques']['assertions'])) {
+                              if ((earlReport.report[page.url]['modules']['wcag-techniques']['assertions'][assertion]['metadata']['failed']) > 0) {
+                                commonErrors.push(assertion + ": " + earlReport.report[page.url]['modules']['wcag-techniques']['assertions'][assertion]['description']);
                               }
                             }
                 
                             page.commonErrors = commonErrors;
-                            this.updatePage(page);
+                            this.updatePage(page, page.monitoringStatus);
                         } catch (error) {
                             console.error("Error:", error);
                         }
@@ -139,15 +151,15 @@ export class WebsiteDetailComponent implements OnInit {
     }
   } 
   
-  private updatePage(page: WebsitePage) {
+  private updatePage(page: WebsitePage, status: string) {
     if (page != null) {
-      page.lastEvaluationDate = new Date();
+      page.monitoringStatus = status;
       this.websiteService.updatePage(page).subscribe({
           error: (updateError) => {
               console.error("Falha ao atualizar status de monitoramento:", updateError);
           }
       });
-    }
+   }
   }
 
   private updateWebsiteIfNeeded(error: boolean): void {

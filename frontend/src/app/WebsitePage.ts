@@ -1,3 +1,4 @@
+import { ReportModules } from "./Report";
 export interface  WebsitePage {
     page: { [k: string]: any; };
     id: string;
@@ -6,4 +7,5 @@ export interface  WebsitePage {
     monitoringStatus: string;
     errorTypes?: boolean[];
     commonErrors?: string[];
+    report?: ReportModules;
 }
