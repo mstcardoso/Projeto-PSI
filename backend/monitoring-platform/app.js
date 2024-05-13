@@ -8,6 +8,7 @@ var logger = require('morgan');
 const url = require('url');
 
 var websiteRoutes = require('./routes/websiteRoutes');
+var reportRoutes = require('./routes/reportRoutes');
 var cors = require('cors');
 var app = express();
 app.use(cors());
@@ -23,6 +24,7 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/api/', websiteRoutes);
+app.use('/api/', reportRoutes);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
@@ -43,7 +45,8 @@ app.use(function(err, req, res, next) {
 // Set up mongoose connection
 const mongoose = require("mongoose");
 mongoose.set("strictQuery", false);
-const mongoDB = "mongodb://psi040:psi040@localhost:27017/psi040?retryWrites=true&authSource=psi040";
+//const mongoDB = "mongodb://psi040:psi040@localhost:27017/psi040?retryWrites=true&authSource=psi040";
+const mongoDB = "mongodb+srv://edsonanibalchidumanhane:5rs8CNlFxDWQDncQ@cluster0.ptnwgmu.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
 main().catch((err) => console.log(err));
 async function main() {
   await mongoose.connect(mongoDB);

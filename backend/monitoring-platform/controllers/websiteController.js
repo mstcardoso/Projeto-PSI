@@ -1,5 +1,6 @@
 const Website = require("../models/Website");
-const WebsitePage = require("../models/WebsitePage")
+const WebsitePage = require("../models/WebsitePage");
+const { ActRules, WcagTechniques, Report} = require("../models/Report");
 const asyncHandler = require("express-async-handler");
 const { ObjectId } = require("mongodb");
 // importar avaliador do pacote
@@ -23,30 +24,49 @@ const launchOptions = {
 };
 
 exports.evaluate_page = asyncHandler(async (req, res, next) => {
-  var report
   try {
-    // criar instância do avaliador
-    const qualweb = new QualWeb(plugins);
+      // Criar uma instância do avaliador QualWeb
+      const qualweb = new QualWeb(plugins);
 
-    // iniciar o avalidor
-    await qualweb.start(clusterOptions, launchOptions);
-    
-    // especificar as opções, incluindo o url a avaliar
-    const qualwebOptions = {
-        url: req.body.url // substituir pelo url a avaliar
-    };
+      // Iniciar o QualWeb
+      await qualweb.start(clusterOptions, launchOptions);
+      
+      // Obter a URL do corpo da requisição
+      const urlToEvaluate = req.body.url;
 
-    // executar a avaliação, recebendo o relatório
-    report = await qualweb.evaluate(qualwebOptions);
+      // Executar a avaliação
+      const qualwebOptions = { url: urlToEvaluate };
+      const report = await qualweb.evaluate(qualwebOptions);
 
-    // parar o avaliador
-    await qualweb.stop();
-    
-    res.status(201).json(report);
+      // Parar o QualWeb
+      await qualweb.stop();
+
+      // Salvar os dados de act_rules
+      const actRulesData = new ActRules({ data: report[urlToEvaluate].modules["act-rules"] });
+      await actRulesData.save();
+
+      // Salvar os dados de wcag_techniques
+      const wcagTechniquesData = new WcagTechniques({ data: report[urlToEvaluate].modules["wcag-techniques"] });
+      await wcagTechniquesData.save();
+
+      // Criar um novo objeto Report e vincular as referências
+      const reportData = new Report({
+        act_rules: actRulesData.id,
+        wcag_techniques: wcagTechniquesData.id
+      });
+
+      // Salvar o objeto Report
+      await reportData.save();
+      
+      // Retornar o relatório salvo como resposta
+      res.status(201).json({report: report, reportModules: reportData});
   } catch (error) {
-      res.status(500).json({ message: "erro", error: error.message });
+    console.log(error.message);
+    // Em caso de erro, enviar uma resposta com status 500 e uma mensagem de erro
+    res.status(500).json({ message: "Erro ao avaliar e registrar o relatório", error: error.message });
   }
 });
+
 
 exports.website_regist = asyncHandler(async (req, res, next) => {
     try {
@@ -67,7 +87,8 @@ exports.page_regist = asyncHandler(async (req, res, next) => {
   try {
       const newPage = await WebsitePage.create({ 
         url: req.body.url,
-        monitoringStatus: 'Por avaliar'
+        monitoringStatus: 'Por avaliar',
+        report: null
       });
 
       res.status(201).json(newPage);
