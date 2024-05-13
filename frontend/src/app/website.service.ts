@@ -85,21 +85,44 @@ export class WebsiteService {
   }
 
   // PUT Request
-  updateWebsite(website: Website): Observable<string> {
-    const url = `${this.websiteUrl}/${website.id}`;
-    return this.http.put(url, website, this.httpOptions).pipe(
-      map(() => 'Website actualizada com sucesso'),
-      catchError(() => of('Falha ao actualizar website'))
-    );
+  updateWebsite(website: Partial<Website>): Observable<string> {
+    if (website.pages && website.pages.length > 0) {
+      // Remova o atributo "report" de cada página
+      const updatedPages = website.pages.map(page => {
+        const { report, ...pageWithoutReport } = page;
+        return pageWithoutReport;
+      });
+    
+      // Construa o objeto com os campos necessários
+      const payload = {
+        monitoringStatus: website.monitoringStatus,
+        lastEvaluationDate: website.lastEvaluationDate,
+        pages: updatedPages
+      };
+    
+      const url = `${this.websiteUrl}/${website.id}`;
+      return this.http.put(url, payload, this.httpOptions).pipe(
+        map(() => 'Website atualizado com sucesso'),
+        catchError(() => of('Falha ao atualizar o website'))
+      );
+    } else {
+      return of('Nenhuma página para atualizar');
+    }
   }
+  
+  
 
   updatePage(page: WebsitePage): Observable<string> {
+    // Remove o atributo "report" da página
+    const { report, ...pageWithoutReport } = page;
+    
     const url = `${this.pageUrl}/${page.id}`;
-    return this.http.put(url, page, this.httpOptions).pipe(
-      map(() => 'Página actualizada com sucesso'),
-      catchError(() => of('Falha ao actualizar página'))
+    return this.http.put(url, pageWithoutReport, this.httpOptions).pipe(
+      map(() => 'Página atualizada com sucesso'),
+      catchError(() => of('Falha ao atualizar página'))
     );
   }
+  
 
   /** DELETE: delete the website from the server */
   deleteWebsite(id: string | undefined): Observable<Website | string> {

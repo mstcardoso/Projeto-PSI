@@ -80,7 +80,7 @@ export class WebsiteDetailComponent implements OnInit {
                             page.errorTypes = [accessibilityErrors.A != 0, accessibilityErrors.AA != 0, accessibilityErrors.AAA != 0]
                             if (accessibilityErrors.A == 0 && accessibilityErrors.AA == 0) {
                               page.lastEvaluationDate = new Date();
-
+                              console.log("Rep: "+ page.report)
                               if(!page.report) {
                                 page.report = earlReport.reportModules;
                               } else {
@@ -95,7 +95,6 @@ export class WebsiteDetailComponent implements OnInit {
                                 } else {
                                   this.websiteService.deleteReport(page.report._id).subscribe();
                                   page.report = earlReport.reportModules;
-                                  console.log("Report: "+page.report?.act_rules)
                                 }
                                 this.updatePage(page, "Não conforme");
                             }
