@@ -212,36 +212,6 @@ exports.page_update = asyncHandler(async (req, res, next) => {
   }
 });
 
-//Mandamos os detalhes sem o act_rules e wcag_techniques
-exports.website_sdetail = asyncHandler(async (req, res, next) => {
-  try {
-    const websiteId = req.params._id;
-    if (!ObjectId.isValid(websiteId)) {
-      const err = new Error("ID do website inválido");
-      err.status = 400; // Bad request
-      return next(err);
-    }
-
-    const website = await Website.findById(websiteId).populate({
-      path: 'pages',
-      populate: {
-        path: 'report',
-        select: '_id', 
-      }
-    });
-    
-    if (!website) {
-      const err = new Error("Website não encontrado");
-      err.status = 404;
-      return next(err);
-    }
-
-    res.json(website);
-  } catch (err) {
-    return next(err);
-  }
-});
-//Mandamos os detalhes com o act_rules e wcag_techniques - a ser usado para quando queremos todos os detalhes
 exports.website_detail = asyncHandler(async (req, res, next) => {
   try {
     const websiteId = req.params._id;
