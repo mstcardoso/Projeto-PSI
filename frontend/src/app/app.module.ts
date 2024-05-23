@@ -6,12 +6,14 @@ import { FormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 import { DashboardComponent } from './dashboard/dashboard.component';
 import { WebsiteDetailComponent } from './website-detail/website-detail.component';
+import { PageDetailComponent } from './page-detail/page-detail.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     DashboardComponent,
     WebsiteDetailComponent,
+    PageDetailComponent,
   ],
   imports: [
     BrowserModule,

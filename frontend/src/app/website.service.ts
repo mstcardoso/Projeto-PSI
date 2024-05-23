@@ -10,10 +10,10 @@ import { WebsitePage } from './WebsitePage';
 })
 export class WebsiteService {
   
-  private websitesUrl = 'http://appserver.alunos.di.fc.ul.pt:3090/api/websites'; 
-  private pagesUrl = 'http://appserver.alunos.di.fc.ul.pt:3090/api/pages'; 
-  private websiteUrl = 'http://appserver.alunos.di.fc.ul.pt:3090/api/website'; 
-  private pageUrl = 'http://appserver.alunos.di.fc.ul.pt:3090/api/page';
+  private websitesUrl = 'http://localhost:3090/api/websites'; 
+  private pagesUrl = 'http://localhost:3090/api/pages'; 
+  private websiteUrl = 'http://localhost:3090/api/website'; 
+  private pageUrl = 'http://localhost:3090/api/page';
 
   
   httpOptions = {

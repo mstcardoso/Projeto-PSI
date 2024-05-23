@@ -1,0 +1,27 @@
+.results-summary {
+    margin-bottom: 20px;
+  }
+  
+  .filters {
+    margin-bottom: 20px;
+  }
+  
+  .filters label {
+    margin-right: 10px;
+  }
+  
+  .test-results table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  .test-results th, .test-results td {
+    border: 1px solid #ccc;
+    padding: 8px;
+    text-align: left;
+  }
+  
+  .test-results th {
+    background-color: #f4f4f4;
+  }
+  

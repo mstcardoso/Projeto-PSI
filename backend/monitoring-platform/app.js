@@ -43,7 +43,8 @@ app.use(function(err, req, res, next) {
 // Set up mongoose connection
 const mongoose = require("mongoose");
 mongoose.set("strictQuery", false);
-const mongoDB = "mongodb://psi040:psi040@localhost:27017/psi040?retryWrites=true&authSource=psi040";
+//const mongoDB = "mongodb://psi040:psi040@localhost:27017/psi040?retryWrites=true&authSource=psi040";
+const mongoDB =  "mongodb+srv://fc58238:fc58238@cluster0.jtlfcbi.mongodb.net/psi?retryWrites=true&w=majority&appName=Cluster0";
 main().catch((err) => console.log(err));
 async function main() {
   await mongoose.connect(mongoDB);

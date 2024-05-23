@@ -83,6 +83,7 @@
           <th>URL</th>
           <th>Última Avaliação</th>
           <th>Estado</th>
+          <th>Detalhes</th>
           <th>Selecionar</th>
         </tr>
       </thead>
@@ -94,6 +95,7 @@
             <ng-template #none>Sem Avaliações</ng-template>
           </td>
           <td>{{ page.monitoringStatus }}</td>
+          <td><a [routerLink]="'/page/' + page.id">Detalhes</a></td>
           <td>
             <input type="checkbox" (click)="changeCheckedBoxes(page)">
           </td>
