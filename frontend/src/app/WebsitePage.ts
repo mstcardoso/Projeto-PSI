@@ -6,4 +6,5 @@ export interface  WebsitePage {
     monitoringStatus: string;
     errorTypes?: boolean[];
     commonErrors?: string[];
+    report: Report;
 }
