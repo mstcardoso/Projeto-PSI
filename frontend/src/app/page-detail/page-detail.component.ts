@@ -55,4 +55,8 @@ export class PageDetailComponent {
   get percentageNotApplicable(): number {
     return (this.notApplicableTests / this.totalTests) * 100;
   }
+
+  goBack(): void{
+    this.location.back();
+  } 
 }
