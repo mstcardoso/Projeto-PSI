@@ -8,12 +8,11 @@ import { ActRules } from '../ActRules';
 import { Wcag } from '../Wcag';
 
 interface TestResult {
-  id: number;
-  name: string;
+  code: string;
+  description: string;
   type: 'ACT' | 'WCAG';
-  result: 'Passed' | 'Warning' | 'Failed' | 'Not Applicable';
+  result: string;
   level: 'A' | 'AA' | 'AAA';
-  elements: Array<{ element: string, result: string }>;
 }
 
 @Component({
@@ -40,14 +39,34 @@ export class PageDetailComponent {
     this.failedTests = this.report?.act.data['metadata']['failed'] + this.report?.wcag.data['metadata']['failed'];;
     this.notApplicableTests = this.report?.act.data['metadata']['inapplicable'] + this.report?.wcag.data['metadata']['inapplicable'];;
     this.totalTests = this.passedTests + this.warningTests + this.failedTests + this.notApplicableTests;
+
+    for(let assertion of this.report?.act.data['assertions']){
+      let test: TestResult= {
+        code: assertion['code'], 
+        description: assertion['description'], 
+        type: 'ACT', result: assertion['metadata']['outcome'], 
+        level: assertion['metadata']['success-criteria']
+      }
+      this.testResults.push(test);
+    }
+
+    for(let assertion of this.report?.wcag.data['assertions']){
+      let test: TestResult= {
+        code: assertion['code'], 
+        description: assertion['description'], 
+        type: 'ACT', result: assertion['metadata']['outcome'], 
+        level: assertion['metadata']['success-criteria']
+      }
+      this.testResults.push(test);
+    }
   }
 
   getPage(): void {
     const id = String(this.route.snapshot.paramMap.get('_id'));
     this.websiteService.getPage(id).subscribe((page) => {
-        this.page = page;
-        this.report = page.report;
-    });
+      this.page = page;
+      this.report = page.report;
+  });
   }
 
   // sacar report da pagina
@@ -58,9 +77,9 @@ export class PageDetailComponent {
   notApplicableTests = 5;
 
   testResults: TestResult[] = [
-    { id: 1, name: 'Test 1', type: 'ACT', result: 'Passed', level: 'A', elements: [{ element: '<button>', result: 'Passed' }] },
-    { id: 2, name: 'Test 2', type: 'WCAG', result: 'Warning', level: 'AA', elements: [{ element: '<img>', result: 'Warning' }] },
-    { id: 3, name: 'Test 3', type: 'ACT', result: 'Failed', level: 'AAA', elements: [{ element: '<div>', result: 'Failed' }, { element: '<img>', result: 'Failed' }] },
+    { code: "1", description: 'Test 1', type: 'ACT', result: 'passed', level: 'A'},
+    { code: "2", description: 'Test 2', type: 'WCAG', result: 'warning', level: 'AA'},
+    { code: "3", description: 'Test 3', type: 'ACT', result: 'failed', level: 'AAA' },
     // Add more test results here
   ];
 

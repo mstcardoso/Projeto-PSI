@@ -188,6 +188,28 @@ exports.page_update = asyncHandler(async (req, res, next) => {
   }
 });
 
+exports.page_detail = asyncHandler(async (req, res, next) => {
+  try {
+    const pageId = req.params._id;
+    if (!ObjectId.isValid(pageId)) {
+      const err = new Error("ID da pagina inválido");
+      err.status = 400; // Bad request
+      return next(err);
+    }
+
+    const page = await WebsitePage.findById(pageId);
+    if (!page) {
+      const err = new Error("Pagina não encontrado");
+      err.status = 404;
+      return next(err);
+    }
+
+    res.json(page);
+  } catch (err) {
+    return next(err);
+  }
+});
+
 exports.website_detail = asyncHandler(async (req, res, next) => {
   try {
     const websiteId = req.params._id;
