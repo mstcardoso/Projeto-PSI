@@ -43,26 +43,18 @@
     <table>
       <thead>
         <tr>
-          <th>Test Name</th>
-          <th>Type</th>
+          <th>Test Code</th>
+          <th>Description</th>
           <th>Result</th>
           <th>Level</th>
-          <th>Elements Evaluated</th>
         </tr>
       </thead>
       <tbody>
         <tr *ngFor="let test of filteredResults">
-          <td>{{ test.name }}</td>
-          <td>{{ test.type }}</td>
+          <td>{{ test.code }}</td>
+          <td>{{ test.description }}</td>
           <td>{{ test.result }}</td>
           <td>{{ test.level }}</td>
-          <td>
-            <ul>
-              <li *ngFor="let element of test.elements">
-                {{ element.element }}: {{ element.result }}
-              </li>
-            </ul>
-          </td>
         </tr>
       </tbody>
     </table>
