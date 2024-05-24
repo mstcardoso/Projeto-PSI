@@ -1,4 +1,4 @@
 export interface ActRules {
     id: string;
-    data: any[];
+    data: any;
 }

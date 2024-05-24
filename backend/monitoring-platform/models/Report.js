@@ -11,8 +11,8 @@ const WcagTechniquesSchema = new Schema({
 });
 
 const ReportSchema = new Schema({
-    act_rules: { type: Schema.Types.ObjectId, ref: 'ActRules' },
-    wcag_techniques: { type: Schema.Types.ObjectId, ref: 'WcagTechniques' }
+    act: { type: Schema.Types.ObjectId, ref: 'ActRules' },
+    wcag: { type: Schema.Types.ObjectId, ref: 'WcagTechniques' }
 });
 
 const ActRules = mongoose.model("ActRules", ActRulesSchema);

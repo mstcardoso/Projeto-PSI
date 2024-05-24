@@ -3,6 +3,9 @@ import { ActivatedRoute } from '@angular/router';
 import { WebsitePage } from '../WebsitePage';
 import { WebsiteService } from '../website.service';
 import { Location } from '@angular/common'
+import { Report } from '../Report';
+import { ActRules } from '../ActRules';
+import { Wcag } from '../Wcag';
 
 interface TestResult {
   id: number;
@@ -32,6 +35,11 @@ export class PageDetailComponent {
 
   ngOnInit(): void {
     this.getPage();
+    this.passedTests = this.report?.act.data['metadata']['passed'] + this.report?.wcag.data['metadata']['passed'];
+    this.warningTests = this.report?.act.data['metadata']['warning'] + this.report?.wcag.data['metadata']['warning'];;
+    this.failedTests = this.report?.act.data['metadata']['failed'] + this.report?.wcag.data['metadata']['failed'];;
+    this.notApplicableTests = this.report?.act.data['metadata']['inapplicable'] + this.report?.wcag.data['metadata']['inapplicable'];;
+    this.totalTests = this.passedTests + this.warningTests + this.failedTests + this.notApplicableTests;
   }
 
   getPage(): void {
