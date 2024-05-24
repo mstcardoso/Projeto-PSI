@@ -90,7 +90,6 @@
           <th>URL</th>
           <th>Última Avaliação</th>
           <th>Estado</th>
-          <th>Detalhes</th>
           <th>Selecionar</th>
         </tr>
       </thead>
@@ -98,11 +97,10 @@
         <tr *ngFor="let page of pages.slice(calculateIndex().startIndex, calculateIndex().endIndex)">
           <td>{{ page.url }}</td>
           <td>
-            <ng-container *ngIf="page.lastEvaluationDate; else none">{{ page.lastEvaluationDate | date:'dd/MM/yyyy HH:mm:ss' }}</ng-container>
+            <ng-container *ngIf="page.lastEvaluationDate; else none"><a [routerLink]="'/page/' + page.id">{{ page.lastEvaluationDate | date:'dd/MM/yyyy HH:mm:ss' }}</a></ng-container>
             <ng-template #none>Sem Avaliações</ng-template>
           </td>
           <td>{{ page.monitoringStatus }}</td>
-          <td><a [routerLink]="'/page/' + page.id">Detalhes</a></td>
           <td>
             <input type="checkbox" (click)="changeCheckedBoxes(page)">
           </td>
