@@ -6,6 +6,9 @@ import { Location } from '@angular/common'
 import { WebsitePage } from '../WebsitePage';
 import isUrl from 'is-url';
 import { tap } from 'rxjs';
+import { jsPDF } from "jspdf";
+import 'jspdf-autotable';
+
 
 @Component({
   selector: 'app-website-detail',
@@ -368,6 +371,100 @@ export class WebsiteDetailComponent implements OnInit {
 
   popUp(): void {
 
+  }
+
+  exportToPDF(): void {
+    if (this.website) {
+      const doc = new jsPDF();
+      let startY = 10;
+      const lineHeight = 10;
+      const maxWidth = 180; // Maximum width for each line of text
+
+      // Add title
+      doc.setFontSize(16);
+      doc.text(`Relatório de Acessibilidade - ${this.website?.url}`, 10, startY);
+      startY += lineHeight * 2;
+
+      // Add other information
+      doc.setFontSize(12);
+      doc.text(`Total de páginas: ${this.website?.pages.length}`, 10, startY);
+      startY += lineHeight;
+      doc.text(`Páginas sem erros: ${this.pagesWithNoErrors()} (${(this.pagesWithNoErrors() / this.website?.pages.length * 100).toFixed(2)}%)`, 10, startY);
+      startY += lineHeight;
+      doc.text(`Páginas com erros: ${this.pagesWithErrors()} (${(this.pagesWithErrors() / this.website?.pages.length * 100).toFixed(2)}%)`, 10, startY);
+      startY += lineHeight;
+      doc.text(`Páginas com erros A: ${this.errorsAAAAAA(0)} (${(this.errorsAAAAAA(0) / this.website?.pages.length * 100).toFixed(2)}%)`, 10, startY);
+      startY += lineHeight;
+      doc.text(`Páginas com erros AA: ${this.errorsAAAAAA(1)} (${(this.errorsAAAAAA(1) / this.website?.pages.length * 100).toFixed(2)}%)`, 10, startY);
+      startY += lineHeight;
+      doc.text(`Páginas com erros AAA: ${this.errorsAAAAAA(2)} (${(this.errorsAAAAAA(2) / this.website?.pages.length * 100).toFixed(2)}%)`, 10, startY);
+      startY += lineHeight * 2;
+
+      // Add common errors
+      doc.setFontSize(14);
+      doc.text('Erros Comuns', 10, startY);
+      startY += lineHeight;
+
+      doc.setFontSize(12);
+      const commonErrors = this.commonErrors();
+
+      // Draw error list
+      for (let i = 0; i < commonErrors.length; i++) {
+        const errorSplit = commonErrors[i].split(':');
+        const error = errorSplit[0];
+        const occurrences = errorSplit[1];
+
+        // Split long error descriptions into multiple lines
+        const errorLines = doc.splitTextToSize(`${error}: ${occurrences}`, maxWidth);
+        for (let j = 0; j < errorLines.length; j++) {
+          // Check if adding this line exceeds the page height
+          if (startY + lineHeight > doc.internal.pageSize.height - 10) {
+            doc.addPage();
+            startY = 10;
+          }
+
+          // Add the line of text to the PDF
+          doc.text(errorLines[j], 10, startY);
+          startY += lineHeight;
+        }
+      }
+
+      doc.save('relatorio_acessibilidade.pdf');
+    }
+  }
+
+  
+
+  exportToHTML(): void {
+    let htmlContent = '';
+    if(this.website) {
+      htmlContent = `
+        <html>
+        <head><title>Relatório de Acessibilidade - ${this.website?.url}</title></head>
+        <body>
+          <h1>Relatório de Acessibilidade - ${this.website?.url}</h1>
+          <p>Total de páginas: ${this.website?.pages.length}</p>
+          <p>Páginas sem erros: ${this.pagesWithNoErrors()} (${(this.pagesWithNoErrors() / this.website?.pages.length * 100).toFixed(2)}%)</p>
+          <p>Páginas com erros: ${this.pagesWithErrors()} (${(this.pagesWithErrors() / this.website?.pages.length * 100).toFixed(2)}%)</p>
+          <p>Páginas com erros A: ${this.errorsAAAAAA(0)} (${(this.errorsAAAAAA(0) / this.website?.pages.length * 100).toFixed(2)}%)</p>
+          <p>Páginas com erros AA: ${this.errorsAAAAAA(1)} (${(this.errorsAAAAAA(1) / this.website?.pages.length * 100).toFixed(2)}%)</p>
+          <p>Páginas com erros AAA: ${this.errorsAAAAAA(2)} (${(this.errorsAAAAAA(2) / this.website?.pages.length * 100).toFixed(2)}%)</p>
+          <h2>Erros Comuns</h2>
+          <ul>
+            ${this.commonErrors().map(error => `<li>${error.split(':')[0]}: ${error.split(':')[1]}</li>`).join('')}
+          </ul>
+        </body>
+        </html>
+      `;
+    }
+
+    const blob = new Blob([htmlContent], { type: 'text/html' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'relatorio_acessibilidade.html';
+    a.click();
+    URL.revokeObjectURL(url);
   }
 }
 

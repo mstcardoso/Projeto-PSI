@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { WebsitePage } from '../WebsitePage';
 import { WebsiteService } from '../website.service';
+import { Location } from '@angular/common'
 
 interface TestResult {
   id: number;
@@ -24,6 +25,7 @@ export class PageDetailComponent {
   constructor(
     private route: ActivatedRoute,
     private websiteService: WebsiteService,
+    private location: Location
   ) {
     
   }

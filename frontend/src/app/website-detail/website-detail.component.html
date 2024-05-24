@@ -54,6 +54,13 @@
         </div>
       </div>
     </div>
+    <div class="details-container">
+      <div class="details">
+        <h2>Relatórios de Acessibilidade de {{ website.url }}</h2>
+        <button type="button" (click)="exportToPDF()">Exportar para PDF</button>
+        <button type="button" (click)="exportToHTML()">Exportar para HTML</button>
+      </div>
+    </div>
   </div>
   <hr>
   <div class="new-page">
