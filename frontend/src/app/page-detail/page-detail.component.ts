@@ -20,7 +20,7 @@ interface TestResult {
 })
 export class PageDetailComponent {
   page: WebsitePage | undefined;
-
+  report: Report | undefined;
   
   constructor(
     private route: ActivatedRoute,
@@ -30,10 +30,15 @@ export class PageDetailComponent {
     
   }
 
-  getReport(): void {
+  ngOnInit(): void {
+    this.getPage();
+  }
+
+  getPage(): void {
     const id = String(this.route.snapshot.paramMap.get('_id'));
     this.websiteService.getPage(id).subscribe((page) => {
         this.page = page;
+        this.report = page.report;
     });
   }
 
