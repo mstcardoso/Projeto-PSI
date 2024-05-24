@@ -1,4 +1,7 @@
 import { Component } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
+import { WebsitePage } from '../WebsitePage';
+import { WebsiteService } from '../website.service';
 
 interface TestResult {
   id: number;
@@ -15,6 +18,24 @@ interface TestResult {
   styleUrls: ['./page-detail.component.css']
 })
 export class PageDetailComponent {
+  page: WebsitePage | undefined;
+
+  
+  constructor(
+    private route: ActivatedRoute,
+    private websiteService: WebsiteService,
+  ) {
+    
+  }
+
+  getReport(): void {
+    const id = String(this.route.snapshot.paramMap.get('_id'));
+    this.websiteService.getPage(id).subscribe((page) => {
+        this.page = page;
+    });
+  }
+
+  // sacar report da pagina
   totalTests = 100;
   passedTests = 70;
   warningTests = 10;
