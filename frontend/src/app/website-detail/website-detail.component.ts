@@ -68,6 +68,7 @@ export class WebsiteDetailComponent implements OnInit {
                   this.updatePage(page);
                   this.websiteService.evaluatePage(page.url).subscribe({
                     next: (earlReport) => {
+                      console.log(earlReport)
                         let error = false;
                         
                         if ((!earlReport || Object.keys(earlReport).length === 0 || earlReport.message == "erro") && this.website != null) {

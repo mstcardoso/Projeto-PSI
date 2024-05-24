@@ -75,6 +75,24 @@ export class WebsiteService {
       catchError(this.handleError<Website[]>('getWebsites', []))
     );
   }
+
+  // GET Request
+  getPage<Data>(id: string): Observable<WebsitePage> {
+    const url = `${this.pageUrl}/${id}`;
+    return this.http.get<WebsitePage>(url).pipe(
+      map((page: any) => {
+        if (page && page._id) {
+          page.id = page._id.toString(); // Convert ObjectId to string
+          delete page._id; // Remove _id field if needed
+        }
+        return page as WebsitePage;
+      }),
+      tap((page: WebsitePage) => {
+        const outcome = page ? 'fetched' : 'did not find';
+      }),
+      catchError(this.handleError<WebsitePage>(`getPage id=${id}`))
+    );
+  }
   
   // GET Request Pages
   getPages(): Observable<WebsitePage[]> {
