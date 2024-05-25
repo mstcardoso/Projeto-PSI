@@ -24,8 +24,8 @@ export class WebsiteService {
     private http: HttpClient) { }
 
 
-  evaluatePage(url: string): Observable<any> {
-      return this.http.post<any>(this.pageUrl + "/evaluate", {url: url}).pipe(
+  evaluatePage(url: string, pageId: String): Observable<any> {
+      return this.http.post<any>(this.pageUrl + "/evaluate", {url: url, pageId: pageId}).pipe(
         catchError(this.handleError<string>('evaluatePage')));
     }
 

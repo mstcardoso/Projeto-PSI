@@ -69,7 +69,7 @@ export class WebsiteDetailComponent implements OnInit {
                 for (const page of this.selectedPages) {
                   page.monitoringStatus = "Em avaliação";
                   this.updatePage(page);
-                  this.websiteService.evaluatePage(page.url).subscribe({
+                  this.websiteService.evaluatePage(page.url, page.id).subscribe({
                     next: (earlReport) => {
                       console.log(earlReport)
                         let error = false;
