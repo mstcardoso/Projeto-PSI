@@ -42,10 +42,10 @@ export class PageDetailComponent {
     this.getPage().then(() => {
       console.log(this.report);
       this.totalTests = 0;
-      this.passedTests = (this.report?.act.data['metadata']['passed'] || 0) + (this.report?.wcag.data['metadata']['passed'] || 0);
-      this.warningTests = (this.report?.act.data['metadata']['warning'] || 0) + (this.report?.wcag.data['metadata']['warning'] || 0);
-      this.failedTests = (this.report?.act.data['metadata']['failed'] || 0) + (this.report?.wcag.data['metadata']['failed'] || 0);
-      this.notApplicableTests = (this.report?.act.data['metadata']['inapplicable'] || 0) + (this.report?.wcag.data['metadata']['inapplicable'] || 0);
+      this.passedTests = (this.report?.act.data.metadata.passed || 0) + (this.report?.wcag.data.metadata.passed || 0);
+      this.warningTests = (this.report?.act.data.metadata.warning || 0) + (this.report?.wcag.data.metadata.warning || 0);
+      this.failedTests = (this.report?.act.data.metadata.failed || 0) + (this.report?.wcag.data.metadata.failed || 0);
+      this.notApplicableTests = (this.report?.act.data.metadata.inapplicable || 0) + (this.report?.wcag.data.metadata.inapplicable || 0);
       
       console.log("Ola");
       if (this.passedTests !== undefined) {
@@ -66,27 +66,31 @@ export class PageDetailComponent {
 
       if (this.report) {
         // Iterar sobre as asserções do relatório 'act'
-        for (let assertion of this.report.act?.data.assertions || []) {
-          let test: TestResult = {
+        console.log(this.report.act?.data.assertions)
+        
+        let assertions = this.report.act?.data.assertions || {};
+        for (let [key,assertion] of Object.entries(assertions)) {
+         /*  let test: TestResult = {
             code: assertion.code || '',
             description: assertion.description || '',
             type: 'ACT',
             result: assertion.metadata.outcome || '',
             level: assertion.metadata['success-criteria'] || ''
           };
-          this.testResults.push(test);
+          this.testResults.push(test); */
         }
     
         // Iterar sobre as asserções do relatório 'wcag'
-        for (let assertion of this.report.wcag?.data.assertions || []) {
-          let test: TestResult = {
+        assertions = this.report.wcag?.data.assertions || {};
+        for (let [key,assertion] of Object.entries(assertions)) {
+         /*  let test: TestResult = {
             code: assertion.code || '',
             description: assertion.description || '',
-            type: 'WCAG',
+            type: 'ACT',
             result: assertion.metadata.outcome || '',
             level: assertion.metadata['success-criteria'] || ''
           };
-          this.testResults.push(test);
+          this.testResults.push(test); */
         }
       }
 
