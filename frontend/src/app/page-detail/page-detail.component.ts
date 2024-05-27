@@ -23,7 +23,13 @@ interface TestResult {
 export class PageDetailComponent {
   page: WebsitePage | undefined;
   report: Report | undefined;
-  
+  passedTests: 0 | undefined;
+  warningTests: 0 | undefined;
+  failedTests: 0 | undefined;
+  notApplicableTests: 0 | undefined;
+  totalTests: 0 | undefined;
+  testResults: TestResult[] = [];
+
   constructor(
     private route: ActivatedRoute,
     private websiteService: WebsiteService,
@@ -33,55 +39,77 @@ export class PageDetailComponent {
   }
 
   ngOnInit(): void {
-    this.getPage();
-    this.passedTests = this.report?.act.data['metadata']['passed'] + this.report?.wcag.data['metadata']['passed'];
-    this.warningTests = this.report?.act.data['metadata']['warning'] + this.report?.wcag.data['metadata']['warning'];;
-    this.failedTests = this.report?.act.data['metadata']['failed'] + this.report?.wcag.data['metadata']['failed'];;
-    this.notApplicableTests = this.report?.act.data['metadata']['inapplicable'] + this.report?.wcag.data['metadata']['inapplicable'];;
-    this.totalTests = this.passedTests + this.warningTests + this.failedTests + this.notApplicableTests;
-
-    for(let assertion of this.report?.act.data['assertions']){
-      let test: TestResult= {
-        code: assertion['code'], 
-        description: assertion['description'], 
-        type: 'ACT', result: assertion['metadata']['outcome'], 
-        level: assertion['metadata']['success-criteria']
+    this.getPage().then(() => {
+      console.log(this.report);
+      this.totalTests = 0;
+      this.passedTests = (this.report?.act.data['metadata']['passed'] || 0) + (this.report?.wcag.data['metadata']['passed'] || 0);
+      this.warningTests = (this.report?.act.data['metadata']['warning'] || 0) + (this.report?.wcag.data['metadata']['warning'] || 0);
+      this.failedTests = (this.report?.act.data['metadata']['failed'] || 0) + (this.report?.wcag.data['metadata']['failed'] || 0);
+      this.notApplicableTests = (this.report?.act.data['metadata']['inapplicable'] || 0) + (this.report?.wcag.data['metadata']['inapplicable'] || 0);
+      
+      console.log("Ola");
+      if (this.passedTests !== undefined) {
+        this.totalTests += this.passedTests;
       }
-      this.testResults.push(test);
-    }
-
-    for(let assertion of this.report?.wcag.data['assertions']){
-      let test: TestResult= {
-        code: assertion['code'], 
-        description: assertion['description'], 
-        type: 'ACT', result: assertion['metadata']['outcome'], 
-        level: assertion['metadata']['success-criteria']
+      
+      if (this.warningTests !== undefined) {
+        this.totalTests += this.warningTests;
       }
-      this.testResults.push(test);
-    }
+      
+      if (this.failedTests !== undefined) {
+        this.totalTests += this.failedTests;
+      }
+      
+      if (this.notApplicableTests !== undefined) {
+        this.totalTests += this.notApplicableTests;
+      }
+
+      if (this.report) {
+        // Iterar sobre as asserções do relatório 'act'
+        for (let assertion of this.report.act?.data.assertions || []) {
+          let test: TestResult = {
+            code: assertion.code || '',
+            description: assertion.description || '',
+            type: 'ACT',
+            result: assertion.metadata.outcome || '',
+            level: assertion.metadata['success-criteria'] || ''
+          };
+          this.testResults.push(test);
+        }
+    
+        // Iterar sobre as asserções do relatório 'wcag'
+        for (let assertion of this.report.wcag?.data.assertions || []) {
+          let test: TestResult = {
+            code: assertion.code || '',
+            description: assertion.description || '',
+            type: 'WCAG',
+            result: assertion.metadata.outcome || '',
+            level: assertion.metadata['success-criteria'] || ''
+          };
+          this.testResults.push(test);
+        }
+      }
+
+    });
   }
-
-  getPage(): void {
-    const id = String(this.route.snapshot.paramMap.get('_id'));
-    this.websiteService.getPage(id).subscribe((page) => {
-      this.page = page;
-      this.report = page.report;
-  });
+  
+  getPage(): Promise<void> {
+    return new Promise<void>((resolve, reject) => {
+      const id = String(this.route.snapshot.paramMap.get('_id'));
+      this.websiteService.getPage(id).subscribe(
+        (page) => {
+          this.page = page;
+          this.report = page.report;
+          resolve();
+        },
+        (error) => {
+          reject(error); 
+        }
+      );
+    });
   }
+  
 
-  // sacar report da pagina
-  totalTests = 100;
-  passedTests = 70;
-  warningTests = 10;
-  failedTests = 15;
-  notApplicableTests = 5;
-
-  testResults: TestResult[] = [
-    { code: "1", description: 'Test 1', type: 'ACT', result: 'passed', level: 'A'},
-    { code: "2", description: 'Test 2', type: 'WCAG', result: 'warning', level: 'AA'},
-    { code: "3", description: 'Test 3', type: 'ACT', result: 'failed', level: 'AAA' },
-    // Add more test results here
-  ];
 
   filterType: 'ACT' | 'WCAG' | '' = '';
   filterResult: 'Passed' | 'Warning' | 'Failed' | 'Not Applicable' | '' = '';
@@ -96,21 +124,38 @@ export class PageDetailComponent {
   }
 
   get percentagePassed(): number {
-    return (this.passedTests / this.totalTests) * 100;
+    if (this.totalTests !== undefined && this.passedTests !== undefined) {
+      return (this.totalTests !== 0 ? (this.passedTests / this.totalTests) * 100 : 0);
+    } else {
+      return 0;
+    }
   }
-
+  
   get percentageWarning(): number {
-    return (this.warningTests / this.totalTests) * 100;
+    if (this.totalTests !== undefined && this.warningTests !== undefined) {
+      return (this.totalTests !== 0 ? (this.warningTests / this.totalTests) * 100 : 0);
+    } else {
+      return 0;
+    }
   }
-
+  
   get percentageFailed(): number {
-    return (this.failedTests / this.totalTests) * 100;
+    if (this.totalTests !== undefined && this.failedTests !== undefined) {
+      return (this.totalTests !== 0 ? (this.failedTests / this.totalTests) * 100 : 0);
+    } else {
+      return 0;
+    }
   }
-
+  
   get percentageNotApplicable(): number {
-    return (this.notApplicableTests / this.totalTests) * 100;
+    if (this.totalTests !== undefined && this.notApplicableTests !== undefined) {
+      return (this.totalTests !== 0 ? (this.notApplicableTests / this.totalTests) * 100 : 0);
+    } else {
+      return 0;
+    }
   }
-
+  
+  
   goBack(): void{
     this.location.back();
   } 

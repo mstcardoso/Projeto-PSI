@@ -2,8 +2,10 @@ const Website = require("../models/Website");
 const WebsitePage = require("../models/WebsitePage")
 const asyncHandler = require("express-async-handler");
 const { ObjectId } = require("mongodb");
+const { ActRules, WcagTechniques, Report} = require("../models/Report");
 // importar avaliador do pacote
 const { QualWeb } = require('@qualweb/core');
+const mongoose = require('mongoose');
 
 
 // o avaliador usa instâncias do browser Chrome para executar a avaliação
@@ -23,30 +25,53 @@ const launchOptions = {
 };
 
 exports.evaluate_page = asyncHandler(async (req, res, next) => {
-  var report
   try {
-    // criar instância do avaliador
-    const qualweb = new QualWeb(plugins);
+      // Criar uma instância do avaliador QualWeb
+      const qualweb = new QualWeb(plugins);
 
-    // iniciar o avalidor
-    await qualweb.start(clusterOptions, launchOptions);
-    
-    // especificar as opções, incluindo o url a avaliar
-    const qualwebOptions = {
-        url: req.body.url // substituir pelo url a avaliar
-    };
+      // Iniciar o QualWeb
+      await qualweb.start(clusterOptions, launchOptions);
+      
+      // Obter a URL do corpo da requisição
+      const urlToEvaluate = req.body.url;
 
-    // executar a avaliação, recebendo o relatório
-    report = await qualweb.evaluate(qualwebOptions);
+      // Executar a avaliação
+      const qualwebOptions = { url: urlToEvaluate };
+      const report = await qualweb.evaluate(qualwebOptions);
 
-    // parar o avaliador
-    await qualweb.stop();
-    
-    res.status(201).json(report);
+      // Parar o QualWeb
+      await qualweb.stop();
+
+      // Salvar os dados de act_rules
+      const actRulesData = new ActRules({ data: report[urlToEvaluate].modules["act-rules"] });
+      await actRulesData.save();
+
+      // Salvar os dados de wcag_techniques
+      const wcagTechniquesData = new WcagTechniques({ data: report[urlToEvaluate].modules["wcag-techniques"] });
+      await wcagTechniquesData.save();
+
+      // Criar um novo objeto Report e vincular as referências
+      const reportData = new Report({
+        act: actRulesData.id,
+        wcag: wcagTechniquesData.id
+      });
+
+      // Salvar o objeto Report
+      await reportData.save();
+      
+      // Atualizar a página com os dados do relatório
+      const pageId = req.body.pageId; 
+      await WebsitePage.findOneAndUpdate({_id: pageId}, { report: reportData._id});
+
+      // Retornar o relatório salvo como resposta
+      res.status(201).json(report);
   } catch (error) {
-      res.status(500).json({ message: "erro", error: error.message });
+    console.log(error.message);
+    // Em caso de erro, enviar uma resposta com status 500 e uma mensagem de erro
+    res.status(500).json({ message: "Erro ao avaliar e registrar o relatório", error: error.message });
   }
 });
+
 
 exports.website_regist = asyncHandler(async (req, res, next) => {
     try {
@@ -67,7 +92,8 @@ exports.page_regist = asyncHandler(async (req, res, next) => {
   try {
       const newPage = await WebsitePage.create({ 
         url: req.body.url,
-        monitoringStatus: 'Por avaliar'
+        monitoringStatus: 'Por avaliar',
+        report: null
       });
 
       res.status(201).json(newPage);
@@ -125,7 +151,8 @@ exports.page_list = asyncHandler(async (req, res, next) => {
         id: page._id.toString(), 
         url: page.url, 
         monitoringStatus: page.monitoringStatus, 
-        commonErrors: commonErrorsObject 
+        commonErrors: commonErrorsObject,
+        report: page.report
       };
     });
     res.json(formattedPages);
@@ -170,43 +197,59 @@ exports.page_update = asyncHandler(async (req, res, next) => {
   const pageId = req.params._id;
 
   try {
-      let updateFields = { ...req.body };
+    const { url, lastEvaluationDate, monitoringStatus, errorTypes, commonErrors } = req.body;
 
-      const updatePage = await WebsitePage.findOneAndUpdate(
-          { _id: pageId },
-          updateFields,
-          { new: true }
-      );
+    let updateFields = {};
+    if (url) updateFields.url = url;
+    if (lastEvaluationDate) updateFields.lastEvaluationDate = lastEvaluationDate;
+    if (monitoringStatus) updateFields.monitoringStatus = monitoringStatus;
+    if (errorTypes) updateFields.errorTypes = errorTypes;
+    if (commonErrors) updateFields.commonErrors = commonErrors;
 
-      if (!updatePage) {
-          return res.status(404).json({ message: 'Página não encontrada' });
-      }
+    const updatePage = await WebsitePage.findOneAndUpdate(
+      { _id: pageId },
+      updateFields,
+      { new: true }
+    );
 
-      res.json(updatePage);
+    if (!updatePage) {
+      return res.status(404).json({ message: 'Página não encontrada' });
+    }
+
+    res.json(updatePage);
   } catch (error) {
-      res.status(500).json({ message: "Falha ao atualizar a página", error: error.message });
+    res.status(500).json({ message: "Falha ao atualizar a página", error: error.message });
   }
 });
+
 
 exports.page_detail = asyncHandler(async (req, res, next) => {
   try {
     const pageId = req.params._id;
-    if (!ObjectId.isValid(pageId)) {
-      const err = new Error("ID da pagina inválido");
-      err.status = 400; // Bad request
-      return next(err);
+    if (!mongoose.Types.ObjectId.isValid(pageId)) {
+      const err = new Error("ID da página inválido");
+      err.status = 400; 
+      throw err;
     }
 
-    const page = await WebsitePage.findById(pageId);
+    const page = await WebsitePage.findById(pageId)
+      .populate({
+        path: "report",
+        populate: {
+          path: "act wcag",
+        }
+      });
+
     if (!page) {
-      const err = new Error("Pagina não encontrado");
-      err.status = 404;
-      return next(err);
+      const err = new Error("Página não encontrada");
+      err.status = 404; 
+      throw err;
     }
 
     res.json(page);
   } catch (err) {
-    return next(err);
+    console.log(err)
+    next(err);
   }
 });
 

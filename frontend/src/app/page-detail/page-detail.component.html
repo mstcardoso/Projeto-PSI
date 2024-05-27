@@ -1,37 +1,38 @@
 <div class="results-summary">
-    <h2>Accessibility Evaluation Results</h2>
-    <p>Total Tests: {{ totalTests }}</p>
-    <p>Passed: {{ passedTests }} ({{ percentagePassed }}%)</p>
-    <p>Warnings: {{ warningTests }} ({{ percentageWarning }}%)</p>
-    <p>Failed: {{ failedTests }} ({{ percentageFailed }}%)</p>
-    <p>Not Applicable: {{ notApplicableTests }} ({{ percentageNotApplicable }}%)</p>
+    <h2>Resultados da avaliação de acessibilidade</h2>
+    <p>Total de testes: {{ totalTests }}</p>
+    <p>Passados: {{ passedTests }} ({{ percentagePassed | number: '1.2-2' }}%)</p>
+    <p>Avisos: {{ warningTests  }} ({{ percentageWarning | number: '1.2-2' }}%)</p>
+    <p>Fracassados: {{ failedTests  }} ({{ percentageFailed | number: '1.2-2' }}%)</p>
+    <p>Não aplicável: {{ notApplicableTests}} ({{ percentageNotApplicable | number: '1.2-2' }}%)</p>
   </div>
-  
+
+    
   <div class="filters">
     <label>
-      Filter by Type:
+      Filtrar por tipo:
       <select [(ngModel)]="filterType">
-        <option value="">All</option>
+        <option value="">Todos</option>
         <option value="ACT">ACT</option>
         <option value="WCAG">WCAG</option>
       </select>
     </label>
     
     <label>
-      Filter by Result:
+      Filtrar por resultado:
       <select [(ngModel)]="filterResult">
-        <option value="">All</option>
-        <option value="Passed">Passed</option>
-        <option value="Warning">Warning</option>
-        <option value="Failed">Failed</option>
-        <option value="Not Applicable">Not Applicable</option>
+        <option value="">Todos</option>
+        <option value="Passed">Passados</option>
+        <option value="Warning">Avisos</option>
+        <option value="Failed">Fracassados</option>
+        <option value="Not Applicable">Não aplicável</option>
       </select>
     </label>
     
     <label>
-      Filter by Level:
+      Filtrar por nível:
       <select [(ngModel)]="filterLevel">
-        <option value="">All</option>
+        <option value="">Todos</option>
         <option value="A">A</option>
         <option value="AA">AA</option>
         <option value="AAA">AAA</option>
@@ -43,10 +44,10 @@
     <table>
       <thead>
         <tr>
-          <th>Test Code</th>
-          <th>Description</th>
-          <th>Result</th>
-          <th>Level</th>
+          <th>Código de teste</th>
+          <th>Descrição</th>
+          <th>Resultado</th>
+          <th>Nível</th>
         </tr>
       </thead>
       <tbody>

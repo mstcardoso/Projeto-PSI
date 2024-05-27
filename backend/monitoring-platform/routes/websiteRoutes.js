@@ -23,8 +23,7 @@ router.delete("/website/:_id", websiteController.website_delete_get);
 
 router.delete("/page/:_id", websiteController.page_delete_get);
 
-
-router.get("/page/:_id", websiteController.page_get);
+router.get("/page/:_id", websiteController.page_detail);
 
 
 // router.get("/page/:_id", websiteController.page_get);
